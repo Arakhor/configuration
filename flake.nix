@@ -1,0 +1,159 @@
+{
+    description = "arakhor's flake";
+
+    inputs = {
+        nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+        chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+
+        # EXTENSIONS:
+        determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+        nix-maid.url = "github:viperML/nix-maid";
+        wrapper-manager.url = "github:viperML/wrapper-manager";
+        preservation.url = "github:nix-community/preservation";
+
+        sops-nix.url = "github:Mic92/sops-nix";
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+        # HARDWARE:
+        nixos-hardware.url = "github:NixOS/nixos-hardware";
+        nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
+        disko.url = "github:nix-community/disko/latest";
+        disko.inputs.nixpkgs.follows = "nixpkgs";
+
+        # PACKAGES:
+        niri.url = "github:sodiboo/niri-flake";
+        nushell-nightly.url = "github:JoaquinTrinanes/nushell-nightly-flake";
+        ghostty.url = "github:ghostty-org/ghostty";
+        helix.url = "github:helix-editor/helix";
+
+        ph.url = "github:CnTeng/ph";
+
+        nix-index-database.url = "github:nix-community/nix-index-database";
+        nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+
+        zen-browser.url = "github:0xc000022070/zen-browser-flake";
+        zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+
+        rust-overlay.url = "github:oxalica/rust-overlay";
+        rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
+        firefox-addons.url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+        firefox-addons.inputs.nixpkgs.follows = "nixpkgs";
+
+        # DMS:
+        dgop.url = "github:AvengeMedia/dgop";
+        dgop.inputs.nixpkgs.follows = "nixpkgs";
+        dms-cli.url = "github:AvengeMedia/danklinux";
+        dms-cli.inputs.nixpkgs.follows = "nixpkgs";
+        dankMaterialShell.url = "github:AvengeMedia/DankMaterialShell";
+        dankMaterialShell.inputs.nixpkgs.follows = "nixpkgs";
+        dankMaterialShell.inputs.dgop.follows = "dgop";
+        dankMaterialShell.inputs.dms-cli.follows = "dms-cli";
+        quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+        quickshell.inputs.nixpkgs.follows = "nixpkgs";
+
+        # MISC:
+        topiary-nushell.url = "github:blindFS/topiary-nushell";
+        topiary-nushell.flake = false;
+    };
+
+    outputs =
+        raw-inputs:
+        let
+            inputs = builtins.mapAttrs (
+                input-name: raw-input:
+                builtins.foldl' (
+                    input: module-class:
+                    if input ? ${module-class} then
+                        input
+                        // {
+                            ${module-class} = builtins.mapAttrs (
+                                module-name:
+                                raw-inputs.nixpkgs.lib.setDefaultModuleLocation "${input-name}.${module-class}.${module-name}"
+                            ) input.${module-class};
+                        }
+                    else
+                        input
+                ) raw-input [ "nixosModules" ]
+            ) raw-inputs;
+        in
+        let
+            inherit (inputs) self nixpkgs;
+
+            inherit (nixpkgs.lib.attrsets) filterAttrs mapAttrs zipAttrs;
+            inherit (nixpkgs.lib.strings) hasSuffix;
+            inherit (nixpkgs.lib.lists) filter map;
+
+            inherit (nixpkgs.lib.trivial) const toFunction;
+            inherit (nixpkgs.lib.filesystem) listFilesRecursive;
+            inherit (nixpkgs.lib.modules) setDefaultModuleLocation;
+
+            params = inputs // {
+                profiles = raw-configs;
+                systems = mapAttrs (const (system: system.config)) configs;
+            };
+
+            # It is important to note, that when adding a new `.mod.nix` file, you need to run `git add` on the file.
+            # If you don't, the file will not be included in the flake, and the modules defined within will not be loaded.
+            all-modules =
+                map (
+                    path:
+                    mapAttrs (profile: setDefaultModuleLocation "${path}#${profile}") (toFunction (import path) params)
+                ) (filter (hasSuffix ".mod.nix") (listFilesRecursive "${self}"))
+                ++ [
+                    { universal.options.id = nixpkgs.lib.mkOption { type = nixpkgs.lib.types.int; }; }
+                    elements
+                ];
+
+            elements = {
+                # used as an identifier for ip addresses, etc.
+                # and this set defines what systems are exported
+                xps.id = 6;
+            };
+
+            raw-configs = mapAttrs (const (
+                modules:
+                nixpkgs.lib.nixosSystem { inherit modules; }
+                // {
+                    inherit modules; # expose this next to e.g. `config`, `option`, etc.
+                }
+            )) (zipAttrs all-modules);
+
+            configs = filterAttrs (name: config: elements ? ${name}) raw-configs;
+
+            systems = [
+                "x86_64-linux"
+                "aarch64-linux" # i don't have such a machine, but might as well make the devtooling in this flake work out of the box.
+            ];
+
+            forAllSystems = nixpkgs.lib.genAttrs systems;
+        in
+        {
+            # for use in nix repl
+            p = s: builtins.trace "\n\n${s}\n" "---";
+
+            # devShells = forAllSystems (
+            #   system:
+            #   import ./shell.nix {
+            #     inherit system;
+            #     flake = self;
+            #   }
+            # );
+
+            formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
+
+            nixosConfigurations = configs;
+
+            # This is useful to rebuild all systems at once, for substitution
+            all-systems = nixpkgs.legacyPackages.x86_64-linux.runCommand "all-systems" { } (
+                ''
+                    mkdir $out
+                ''
+                + (builtins.concatStringsSep "\n" (
+                    nixpkgs.lib.attrsets.mapAttrsToList (name: config: ''
+                        ln -s ${config.config.system.build.toplevel} $out/${name}
+                    '') self.nixosConfigurations
+                ))
+            );
+        };
+}
