@@ -1,60 +1,57 @@
-{ preservation, ph, ... }:
+{ preservation, ... }:
 {
-    universal =
-        { lib, ... }:
-        {
-            imports = [
-                preservation.nixosModules.default
-                ph.nixosModules.default
+  universal =
+    { lib, ... }:
+    {
+      imports = [
+        preservation.nixosModules.default
 
-                (lib.mkAliasOptionModule [ "preserveSystem" ] [ "preservation" "preserveAt" "/persist" ])
+        (lib.mkAliasOptionModule [ "preserveSystem" ] [ "preservation" "preserveAt" "/persist" ])
 
-                (lib.mkAliasOptionModule
-                    [ "preserveHome" ]
-                    [ "preservation" "preserveAt" "/persist" "users" "arakhor" ]
-                )
-            ];
+        (lib.mkAliasOptionModule
+          [ "preserveHome" ]
+          [ "preservation" "preserveAt" "/persist" "users" "arakhor" ]
+        )
+      ];
 
-            preservation.enable = true;
-            fileSystems."/persist".neededForBoot = true;
-            boot.initrd.systemd.enable = true;
-            programs.ph.enable = true;
+      preservation.enable = true;
+      fileSystems."/persist".neededForBoot = true;
+      boot.initrd.systemd.enable = true;
 
-            preserveSystem = {
-                commonMountOptions = [
-                    "x-gvfs-hide"
-                    "x-gdu.hide"
-                ];
+      preserveSystem = {
+        directories = [
+          "/var/log"
+          "/var/lib/systemd/coredump"
+          "/var/lib/systemd/rfkill"
+          "/var/lib/systemd/timers"
+          {
+            directory = "/var/lib/nixos";
+            inInitrd = true;
+          }
+          {
+            directory = "/var/lib/private";
+            mode = "0700";
+          }
+        ];
 
-                directories = [
-                    "/srv"
-                    "/var/log"
-                    "/var/tmp"
-                    "/var/lib/systemd"
-                    "/var/lib/nixos"
-                ];
+        files = [
+          {
+            file = "/etc/machine-id";
+            inInitrd = true;
+          }
+          "/etc/adjtime"
+        ];
+      };
 
-                files = [
-                    {
-                        file = "/etc/machine-id";
-                        inInitrd = true;
-                    }
-                    "/etc/adjtime"
-                ];
-            };
-
-            preserveHome = {
-                directories = [
-                    "Downloads"
-                    "Pictures"
-                    "Music"
-                    "Videos"
-
-                    ".cache/nix"
-                    ".local/share/systemd"
-                ];
-            };
-
-            systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
-        };
+      preserveHome = {
+        commonMountOptions = [ "x-gvfs-hide" ];
+        directories = [
+          "Downloads"
+          "Pictures"
+          "Music"
+          "Videos"
+        ];
+      };
+      systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+    };
 }

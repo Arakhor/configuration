@@ -4,15 +4,13 @@
         {
             services.openssh = {
                 enable = true;
-                ports = [ 22 ];
                 settings = {
+                    PermitRootLogin = "no";
+                    AuthenticationMethods = "publickey";
                     PasswordAuthentication = false;
                     KbdInteractiveAuthentication = false;
-                    AllowUsers = [
-                        "root"
-                        "arakhor"
-                    ];
                 };
+                authorizedKeysInHomedir = false;
 
                 hostKeys = [
                     {
@@ -23,6 +21,10 @@
             };
 
             services.gnome.gcr-ssh-agent.enable = true;
+
+            users.users.arakhor.openssh.authorizedKeys.keys = [
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmctnrSAI2N2Hv6e3g1e5dExv75irOQSJFJm8xbH/Sx arakhor@xps"
+            ];
 
             programs.ssh = {
                 agentTimeout = null;

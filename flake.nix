@@ -3,16 +3,20 @@
 
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-        chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
         # EXTENSIONS:
-        determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
         nix-maid.url = "github:viperML/nix-maid";
         wrapper-manager.url = "github:viperML/wrapper-manager";
         preservation.url = "github:nix-community/preservation";
 
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+        nix-index-database.url = "github:nix-community/nix-index-database";
+        nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+
+        xremap.url = "github:xremap/nix-flake";
+        xremap.inputs.nixpkgs.follows = "nixpkgs";
 
         # HARDWARE:
         nixos-hardware.url = "github:NixOS/nixos-hardware";
@@ -26,11 +30,6 @@
         ghostty.url = "github:ghostty-org/ghostty";
         helix.url = "github:helix-editor/helix";
 
-        ph.url = "github:CnTeng/ph";
-
-        nix-index-database.url = "github:nix-community/nix-index-database";
-        nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
-
         zen-browser.url = "github:0xc000022070/zen-browser-flake";
         zen-browser.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -41,20 +40,27 @@
         firefox-addons.inputs.nixpkgs.follows = "nixpkgs";
 
         # DMS:
+        dms.url = "github:AvengeMedia/DankMaterialShell";
+        dms.inputs.nixpkgs.follows = "nixpkgs";
+        dms-plugins.url = "github:AvengeMedia/dms-plugins";
+        dms-plugins.flake = false;
         dgop.url = "github:AvengeMedia/dgop";
         dgop.inputs.nixpkgs.follows = "nixpkgs";
-        dms-cli.url = "github:AvengeMedia/danklinux";
-        dms-cli.inputs.nixpkgs.follows = "nixpkgs";
-        dankMaterialShell.url = "github:AvengeMedia/DankMaterialShell";
-        dankMaterialShell.inputs.nixpkgs.follows = "nixpkgs";
-        dankMaterialShell.inputs.dgop.follows = "dgop";
-        dankMaterialShell.inputs.dms-cli.follows = "dms-cli";
+
         quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
         quickshell.inputs.nixpkgs.follows = "nixpkgs";
+
+        matugen.url = "github:InioX/matugen";
+        matugen.inputs.nixpkgs.follows = "nixpkgs";
 
         # MISC:
         topiary-nushell.url = "github:blindFS/topiary-nushell";
         topiary-nushell.flake = false;
+
+        nu-batteries.url = "github:nome/nu-batteries";
+        nu-batteries.flake = false;
+
+        monurepo.url = "github:YPares/monurepo";
     };
 
     outputs =
@@ -132,13 +138,13 @@
             # for use in nix repl
             p = s: builtins.trace "\n\n${s}\n" "---";
 
-            # devShells = forAllSystems (
-            #   system:
-            #   import ./shell.nix {
-            #     inherit system;
-            #     flake = self;
-            #   }
-            # );
+            devShells = forAllSystems (
+                system:
+                import ./shell.nix {
+                    inherit system;
+                    flake = self;
+                }
+            );
 
             formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
 

@@ -1,105 +1,3 @@
-export-env {
-    def converter_by_separator [sep: string] {
-        {
-            from_string: {|s| $s | split row $sep }
-            to_string: {|v| $v | str join $sep }
-        }
-    }
-
-    let esep_list_converter = converter_by_separator (char esep)
-    let space_list_converter = converter_by_separator (char space)
-
-    $env.ENV_CONVERSIONS = {
-        "DIRS_LIST": $esep_list_converter
-        "GIO_EXTRA_MODULES": $esep_list_converter
-        "GTK_PATH": $esep_list_converter
-        "INFOPATH": $esep_list_converter
-        "LIBEXEC_PATH": $esep_list_converter
-        "LS_COLORS": $esep_list_converter
-        "PATH": $esep_list_converter
-        "QTWEBKIT_PLUGIN_PATH": $esep_list_converter
-        "SESSION_MANAGER": $esep_list_converter
-        "TERMINFO_DIRS": $esep_list_converter
-        "XCURSOR_PATH": $esep_list_converter
-        "XDG_CONFIG_DIRS": $esep_list_converter
-        "XDG_DATA_DIRS": $esep_list_converter
-
-        "NIX_PROFILES": $space_list_converter
-    }
-}
-
-export-env {
-    def relative_luminance [color] {
-        def relative_luminance_helper [x: float] {
-            if $x <= 0.03928 {
-                $x / 12.92
-            } else {
-                ((($x + 0.055) / 1.055) ** 2.4)
-            }
-        }
-
-        let rgb = $color
-        | str trim -c '#' --left
-        | split chars
-        | window 2 --stride 2
-        | each { str join }
-        | into int --radix 16
-        | each {|v| relative_luminance_helper ($v / 255) }
-
-        let r = $rgb.0
-        let b = $rgb.1
-        let g = $rgb.2
-
-        (0.2126 * $r) + (0.7152 * $g) + (0.0722 * $b)
-    }
-
-    def contrast [color1 color2] {
-        let l1 = relative_luminance $color1
-        let l2 = relative_luminance $color2
-
-        let lighter = [$l1 $l2] | math max
-        let darker = [$l1 $l2] | math min
-
-        ($lighter + 0.05) / ($darker + 0.05)
-    }
-
-    let theme_show_color = {|str|
-        if $str =~ '^#[a-fA-F\d]{6}$' {
-            let contrast_black = contrast $str "#000000"
-            let contrast_white = contrast $str "#ffffff"
-
-            {bg: $str fg: (if ($contrast_black > $contrast_white) { "black" } else { "white" })}
-        } else {
-            "default"
-        }
-    }
-
-    $env.config.color_config.string = $theme_show_color
-}
-
-$env.config.color_config.separator = "dark_gray_dimmed"
-$env.config.color_config.row_index = "teal"
-$env.config.color_config.filesize = {||
-    if $in == 0b {
-        "dark_gray_dimmed"
-    } else if $in < 1mb {
-        "cyan"
-    } else if $in > 0.5gb {
-        {fg: "yellow" attr: b}
-    } else { "blue" }
-}
-$env.config.color_config.bool = {|| if $in { "light_cyan" } else { "red" } }
-$env.config.color_config.leading_trailing_space_bg = {bg: dark_gray}
-$env.config.color_config.header = {fg: default attr: b}
-$env.config.color_config.shape_variable = "blue"
-$env.config.color_config.shape_int = "light_magenta"
-$env.config.color_config.shape_float = "light_magenta"
-$env.config.color_config.shape_garbage = {fg: red attr: u}
-
-# $env.config.table.mode = "compact"
-$env.config.table.header_on_separator = true
-$env.config.table.trim.truncating_suffix = "…"
-
 $env.config.filesize.unit = "binary"
 
 $env.config.cursor_shape.emacs = "line"
@@ -118,24 +16,6 @@ $env.config.history.isolation = true
 $env.config.history.max_size = 5_000_000
 
 $env.config.datetime_format.normal = '%a, %d %b %Y %H:%M:%S %z' # shows up in displays of variables or other datetime's outside of tables
-
-def carapace-completer [spans: list<string>] {
-    carapace $spans.0 nushell ...$spans
-    | from json
-    | if ($in | default [] | where value =~ $"($spans | last)ERR_?" | is-empty) { $in } else { null }
-}
-
-let external_completer = {|spans: list<string>|
-    carapace-completer $spans
-    # avoid empty result preventing native file completion
-    | default --empty null
-}
-
-$env.config.completions.case_sensitive = false
-$env.config.completions.quick = true
-$env.config.completions.partial = true
-$env.config.completions.algorithm = "prefix" # prefix or fuzzy
-$env.config.completions.external.completer = $external_completer
 
 $env.config.menus ++= [
     # Configuration for default nushell menus
@@ -202,17 +82,7 @@ $env.config.menus ++= [
 }
 
 $env.config.display_errors.termination_signal = false
-$env.config.display_errors.exit_code = false
-
-def --env yz [...args] {
-    let tmp = (mktemp -t "yazi-cwd.XXXXXX")
-    yazi ...$args --cwd-file $tmp
-    let cwd = (open $tmp)
-    if $cwd != "" and $cwd != $env.PWD {
-        cd $cwd
-    }
-    rm -fp $tmp
-}
+$env.config.display_errors.exit_code = true
 
 $env.config.keybindings ++= [
     {
@@ -265,26 +135,40 @@ $env.config.keybindings ++= [
         }
     }
     {
-        name: yazi
+        name: job_unfreeze
         modifier: control
-        keycode: char_f
+        keycode: char_z
         mode: [emacs vi_normal vi_insert]
         event: {
             send: executehostcommand
-            cmd: "yz"
+            cmd: "fg"
         }
     }
 ]
 
-source ./starship.nu
-
-use hooks.nu
-hooks use {
-    zoxide: {
-        enabled: true
-        depends: zoxide
-        cmd: [zoxide init nushell]
+# Jump to a directory using only keywords.
+def --env --wrapped __zoxide_z [...rest: string] {
+    let path = match $rest {
+        [] => { '~' }
+        ['-'] => { '-' }
+        [$arg] if ($arg | path expand | path type) == 'dir' => { $arg }
+        _ => {
+            zoxide query --exclude $env.PWD -- ...$rest | str trim -r -c "\n"
+        }
     }
+    cd $path
 }
 
-$env.PATH = ($env.PATH | uniq)
+# Jump to a directory using interactive search.
+def --env --wrapped __zoxide_zi [...rest: string] {
+    cd $'(zoxide query --interactive -- ...$rest | str trim -r -c "\n")'
+}
+
+alias g = __zoxide_z
+alias gi = __zoxide_zi
+
+$env.config.hooks.env_change = {
+    PWD: [
+        {|_, dir| zoxide add -- $dir }
+    ]
+}

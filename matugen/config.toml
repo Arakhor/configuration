@@ -1,0 +1,14 @@
+[config]
+[config.custom_colors]
+warning = "#D0A215"
+success = "#879A39"
+
+# [templates.ghostty]
+# input_path = "~/.config/matugen/ghostty"
+# output_path = "~/.config/ghostty/colors"
+# post_hook = "systemctl --user reload app-com.mitchellh.ghostty.service"
+
+[templates.pywalfox]
+input_path = "~/.config/matugen/pywalfox.json"
+output_path = "~/.cache/wal/colors.json"
+post_hook = "pywalfox update"

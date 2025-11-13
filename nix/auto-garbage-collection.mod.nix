@@ -39,7 +39,7 @@
       };
     };
 
-  # On my personal workstation, i frequently work on Nix code, which means lots of rebuilds.
+  # On my graphical workstation, i frequently work on Nix code, which means lots of rebuilds.
   # I'd rather keep it snappy.
   xps.do-auto-garbage-collection = true;
 }

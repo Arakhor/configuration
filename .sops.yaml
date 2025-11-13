@@ -1,10 +1,12 @@
 keys:
-  - &personal age1598sd2pa4l7qg9wwl56gj24d8npvntpq2h7a28lmva7mne5apa6s6pslvq
-  - &host_xps age1tj8cqwlu4lg5qpd9kk7fxu9z705yrp0spuy94yslk0nq80kej3sqs534ce
+  - &personal age142arx3dd29s72e8xv4dvr30qrzrjp95xucvq47rk8875jyn9gcyq0lutz3
+  - &id_xps ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMA6pwXZ2K6uGiphcS0j9+2sEjUkUH3jE8BfJF/9YHcu arahor@xps
+  - &host_xps age1055ze3zzystdp4nf7kkm4tejlkltwwyjml2un4ru9qwzhx07cesqhyc7sa
 creation_rules:
   - path_regex: secrets/xps\.yaml$
     key_groups:
     - age:
+      - *id_xps
       - *host_xps
   - path_regex: secrets.yaml$
     key_groups:

@@ -4,7 +4,7 @@
         {
 
             networking.networkmanager.enable = true;
-            networking.useNetworkd = true;
+            # networking.useNetworkd = true;
             networking.firewall.enable = true;
 
             users.users.arakhor.extraGroups = [ "networkmanager" ];
@@ -12,8 +12,8 @@
             systemd.network.enable = true;
             systemd.network.wait-online.enable = false;
             systemd.services.NetworkManager-wait-online.enable = false;
-            systemd.services.systemd-networkd.stopIfChanged = false;
-            systemd.services.systemd-resolved.stopIfChanged = false;
+            # systemd.services.systemd-networkd.stopIfChanged = false;
+            # systemd.services.systemd-resolved.stopIfChanged = false;
 
             services.resolved.enable = false;
             environment.etc."resolv.conf".text = ''
