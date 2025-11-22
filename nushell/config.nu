@@ -1,4 +1,4 @@
-$env.config.filesize.unit = "binary"
+$env.config.filesize.unit = "metric"
 
 $env.config.cursor_shape.emacs = "line"
 $env.config.cursor_shape.vi_insert = "line"
@@ -16,6 +16,9 @@ $env.config.history.isolation = true
 $env.config.history.max_size = 5_000_000
 
 $env.config.datetime_format.normal = '%a, %d %b %Y %H:%M:%S %z' # shows up in displays of variables or other datetime's outside of tables
+
+$env.config.display_errors.termination_signal = false
+$env.config.display_errors.exit_code = true
 
 $env.config.menus ++= [
     # Configuration for default nushell menus
@@ -81,8 +84,7 @@ $env.config.menus ++= [
     }
 }
 
-$env.config.display_errors.termination_signal = false
-$env.config.display_errors.exit_code = true
+
 
 $env.config.keybindings ++= [
     {
@@ -144,31 +146,14 @@ $env.config.keybindings ++= [
             cmd: "fg"
         }
     }
-]
-
-# Jump to a directory using only keywords.
-def --env --wrapped __zoxide_z [...rest: string] {
-    let path = match $rest {
-        [] => { '~' }
-        ['-'] => { '-' }
-        [$arg] if ($arg | path expand | path type) == 'dir' => { $arg }
-        _ => {
-            zoxide query --exclude $env.PWD -- ...$rest | str trim -r -c "\n"
+    {
+        name: yazi
+        modifier: control
+        keycode: char_f
+        mode: [emacs vi_normal vi_insert]
+        event: {
+            send: executehostcommand
+            cmd: 'if "YAZI_ID" not-in $env { yz } else { exit }'
         }
     }
-    cd $path
-}
-
-# Jump to a directory using interactive search.
-def --env --wrapped __zoxide_zi [...rest: string] {
-    cd $'(zoxide query --interactive -- ...$rest | str trim -r -c "\n")'
-}
-
-alias g = __zoxide_z
-alias gi = __zoxide_zi
-
-$env.config.hooks.env_change = {
-    PWD: [
-        {|_, dir| zoxide add -- $dir }
-    ]
-}
+]

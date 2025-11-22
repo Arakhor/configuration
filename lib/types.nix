@@ -1,8 +1,11 @@
 { lib }:
 let
   inherit (lib) types;
+  typesDag = import ./types-dag.nix { inherit lib; };
 in
 {
+  inherit (typesDag) dagOf;
+
   nushellValue =
     let
       valueType = types.nullOr (

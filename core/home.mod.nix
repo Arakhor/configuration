@@ -12,10 +12,25 @@
         nix-maid.nixosModules.default
 
         (lib.mkAliasOptionModule [ "home" ] [ "users" "users" "arakhor" "maid" ])
+
+        {
+          home = {
+            options = {
+              lib = lib.mkOption {
+                type = lib.types.attrsOf lib.types.attrs;
+                default = { };
+                description = ''
+                  This option allows modules to define helper functions,
+                  constants, etc.
+                '';
+              };
+            };
+          };
+        }
       ];
 
       users.mutableUsers = false;
-      # sops.secrets."user/arakhor/password".neededForUsers = true;
+      sops.secrets."users/arakhor/password".neededForUsers = true;
 
       users.users.arakhor = {
         isNormalUser = true;
@@ -24,8 +39,7 @@
           "wheel"
           "greeter"
         ];
-        # hashedPasswordFile = config.sops.secrets."user/arakhor/password".path;
-        hashedPassword = "$y$j9T$zx4TCrMTNKM4drj3Tqae2.$ntS.6gvtScUra.N8VK2ovxv4FHnz.Xlj4ucTr43.Sz/";
+        hashedPasswordFile = config.sops.secrets."users/arakhor/password".path;
       };
 
       _module.args.nixosConfig = config;

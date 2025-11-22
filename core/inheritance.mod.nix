@@ -1,5 +1,5 @@
 { profiles, ... }:
 {
-    xps.imports = profiles.universal.modules ++ profiles.graphical.modules;
+  xps.imports = profiles.universal.modules ++ profiles.graphical.modules;
 
 }

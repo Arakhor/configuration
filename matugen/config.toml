@@ -3,10 +3,10 @@
 warning = "#D0A215"
 success = "#879A39"
 
-# [templates.ghostty]
-# input_path = "~/.config/matugen/ghostty"
-# output_path = "~/.config/ghostty/colors"
-# post_hook = "systemctl --user reload app-com.mitchellh.ghostty.service"
+[templates.helix]
+input_path = "~/.config/matugen/helix.toml"
+output_path = "~/.config/helix/themes/matugen.toml"
+post_hook = "pkill -USR1 hx"
 
 [templates.pywalfox]
 input_path = "~/.config/matugen/pywalfox.json"

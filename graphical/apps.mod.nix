@@ -1,40 +1,41 @@
 inputs: {
-    graphical.home =
-        { pkgs, lib, ... }:
-        {
-            packages = with pkgs; [
-                foot
-                spotify
-                appimage-run
-                seahorse
-                caligula
-                vesktop
-                grim
-                slurp
-                gsettings-desktop-schemas
-                playerctl
-                brightnessctl
-                pairdrop
-                swayimg
-                stackblur-go
-                subversion
-                wayvnc
-                wlvncc
-                rnote
-                obsidian
-                beeper
-                blanket
-                gnome-clocks
-                gnome-calendar
-                transmission_4-gtk
-                amberol
-                nautilus
-                mpv
-            ];
-        };
+  graphical.home =
+    { pkgs, ... }:
+    {
+      packages = with pkgs; [
+        # keep-sorted start
+        amberol
+        appimage-run
+        blanket
+        brightnessctl
+        caligula
+        foot
+        gnome-calendar
+        gnome-clocks
+        grim
+        gsettings-desktop-schemas
+        mpv
+        nautilus
+        obsidian
+        pairdrop
+        playerctl
+        rnote
+        seahorse
+        slurp
+        spotify
+        stackblur-go
+        subversion
+        swayimg
+        transmission_4-gtk
+        vesktop
+        wayvnc
+        wlvncc
+        # keep-sorted end
+      ];
+    };
 
-    graphical.preserveHome.directories = [
-        ".config/spotify"
-        ".cache/spotify"
-    ];
+  graphical.preserveHome.directories = [
+    ".config/spotify"
+    ".cache/spotify"
+  ];
 }

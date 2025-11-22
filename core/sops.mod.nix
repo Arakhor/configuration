@@ -5,6 +5,8 @@
     {
       imports = [ sops-nix.nixosModules.sops ];
 
+      preserveHome.files = [ ".config/sops/age/keys.txt" ];
+
       sops.age.sshKeyPaths =
         if config.preservation.enable then
           # secrets are decrypted *before* persistence kicks in
@@ -14,7 +16,7 @@
       sops.defaultSopsFormat = "yaml";
       environment.systemPackages = [ pkgs.sops ];
 
-      preserveHome.files = [ ".config/sops/age/keys.txt" ];
+      # sops.defaultSopsFile = ../secrets.yaml;
     };
 
   xps.sops.defaultSopsFile = ./secrets/xps.yaml;

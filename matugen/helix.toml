@@ -1,0 +1,145 @@
+attribute = "white"
+keyword = "red"
+namespace = "yellow"
+punctuation = "white"
+"punctuation.delimiter" = "white"
+operator = "blue"
+special = "blue"
+"variable.other.member" = "blue"
+variable = "white"
+"variable.parameter" = "white"
+"variable.builtin" = "light-red"
+type = "yellow"
+"type.builtin" = "magenta"
+constructor = "cyan"
+function = "tertiary"
+"function.macro" = "tertiary"
+tag = "green"
+comment = "gray"
+constant = "blue"
+"constant.builtin" = "blue"
+string = "magenta"
+"constant.numeric" = "blue"
+"constant.character.escape" = "blue"
+# used for lifetimes
+label = "light-red"
+
+
+# ---------- UI core ----------
+"ui.background" = ""
+"ui.background.separator" = "outline"
+
+# Cursors
+"ui.cursor" = { fg = "on_secondary", bg = "secondary" }
+
+"ui.cursor.match" = { bg = "primary_container", fg = "on_primary_container" }
+"ui.cursor.primary" = { bg = "primary", fg = "on_primary" }
+
+# Debug/gutter
+"ui.debug.breakpoint" = { fg = "on_error", bg = "error" }
+"ui.debug.active" = { fg = "on_primary", bg = "primary" }
+
+"ui.gutter" = { fg = "on_surface_container_low", bg = "surface_container_lowest" }
+"ui.gutter.selected" = { fg = "on_surface", bg = "surface_container_low" }
+
+"ui.linenr" = "outline_variant"
+"ui.linenr.selected" = "tertiary"
+
+# Statusline & modes (explicit colors for normal/insert/select)
+"ui.statusline" = { fg = "on_surface_container_lowest", bg = "surface_container_lowest" }
+"ui.statusline.inactive" = { fg = "on_surface_container_highest", bg = "surface_container_highest" }
+"ui.statusline.normal" = { fg = "on_primary", bg = "primary" }
+"ui.statusline.insert" = { fg = "on_secondary", bg = "secondary" }
+"ui.statusline.select" = { fg = "on_tertiary", bg = "tertiary" }
+"ui.statusline.separator" = { fg = "outline" }
+
+# Bufferline
+"ui.bufferline" = { fg = "on_surface_container_low", bg = "surface_container_low" }
+"ui.bufferline.inactive" = { fg = "on_surface_container_low", bg = "surface_container_low" }
+"ui.bufferline.active" = { fg = "on_primary_container", bg = "primary_container" }
+
+# Popups / menus / pickers
+"ui.popup" = { fg = "on_surface", bg = "blue" }
+"ui.popup.info" = { fg = "outline", bg = "surface_container" }
+"ui.menu" = { fg = "on_surface", bg = "surface_container" }
+"ui.menu.selected" = { fg = "on_primary", bg = "primary" }
+"ui.menu.scroll" = { fg = "on_surface_container_high", bg = "surface_container_high" }
+
+"ui.picker.header" = { fg = "on_surface_container_highest", bg = "surface_container_highest" }
+"ui.picker.header.column" = { fg = "on_surface_container_high", bg = "surface_container_high" }
+"ui.picker.header.column.active" = { fg = "on_primary", bg = "primary" }
+
+"ui.window" = { fg = "outline" }
+"ui.help" = { fg = "on_surface", bg = "surface" }
+
+# Text / focus / info
+"ui.text" = { fg = "on_background" }
+"ui.text.focus" = { fg = "on_surface", bg = "surface_container_high" }
+"ui.text.inactive" = { fg = "on_surface_variant", bg = "surface_container_low" }
+"ui.text.info" = { fg = "on_surface" }
+"ui.text.directory" = { fg = "primary" }
+
+# Virtual (rulers, whitespace, guides, inlay hints)
+"ui.virtual" = { fg = "outline_variant" }
+"ui.virtual.ruler" = { fg = "on_surface_container_high" }
+"ui.virtual.whitespace" = { fg = "on_surface_container_low" }
+"ui.virtual.indent-guide" = { fg = "outline_variant" }
+"ui.virtual.inlay-hint" = { fg = "on_surface_container_high", bg = "surface_container_low" }
+"ui.virtual.inlay-hint.parameter" = { fg = "on_surface_container_high", bg = "surface_container_low" }
+"ui.virtual.inlay-hint.type" = { fg = "on_surface_container_high", bg = "surface_container_low" }
+"ui.virtual.wrap" = { fg = "on_surface_container_low" }
+"ui.virtual.jump-label" = { fg = "on_primary", bg = "primary_container" }
+
+# Selection & highlighting (higher contrast)
+"ui.selection" = { fg = "on_secondary_container", bg = "secondary_container" }
+"ui.selection.primary" = { fg = "on_primary_container", bg = "primary_container" }
+"ui.highlight" = { fg = "on_primary_container", bg = "primary_container" }
+"ui.highlight.frameline" = { fg = "primary" }
+
+# Cursorline / cursorcolumn
+"ui.cursorline" = { bg = "surface_container_high" }
+"ui.cursorcolumn" = { bg = "surface_container_high" }
+
+# Diagnostics
+"error" = "red"
+"warning" = "yellow"
+"info" = "cyan"
+"hint" = "green"
+
+"diagnostic.error" = { underline = { color = "red", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "yellow", style = "curl" } }
+"diagnostic.info" = { underline = { color = "cyan", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "green", style = "curl" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }
+
+# Completion / hover markup
+"markup.normal.completion" = { fg = "on_surface", bg = "surface_container" }
+"markup.normal.hover" = { fg = "on_surface", bg = "surface_container_high" }
+"markup.heading" = { fg = "primary" }
+"markup.raw.inline.completion" = { fg = "on_surface", bg = "surface_container" }
+"markup.raw.inline.hover" = { fg = "on_surface", bg = "surface_container_high" }
+
+# Diff / VCS
+"diff.plus" = { fg = "on_surface", bg = "surface_container_low" }
+"diff.minus" = { fg = "on_surface", bg = "surface_container_low" }
+"diff.plus.gutter" = { fg = "on_surface", bg = "surface" }
+"diff.minus.gutter" = { fg = "on_surface", bg = "surface" }
+"diff.delta" = { fg = "primary", bg = "surface_container_low" }
+"diff.moved" = { fg = "secondary", bg = "surface_container_low" }
+"diff.conflict" = { fg = "on_error_container", bg = "error_container" }
+"diff.gutter" = { fg = "on_surface_container", bg = "surface_container_low" }
+
+# Rainbow bracket matching (list of styles)
+rainbow = [
+  "primary",
+  "secondary",
+  { fg = "tertiary", modifiers = ["bold"] },
+  { fg = "error", modifiers = ["bold"] },
+  "outline"
+]
+
+[palette]
+<* for name, value in colors *>
+{{ name }} = "{{ value.default.hex }}"
+<* endfor *>

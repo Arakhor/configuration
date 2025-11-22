@@ -1,6 +1,6 @@
 keys:
   - &personal age142arx3dd29s72e8xv4dvr30qrzrjp95xucvq47rk8875jyn9gcyq0lutz3
-  - &id_xps ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMA6pwXZ2K6uGiphcS0j9+2sEjUkUH3jE8BfJF/9YHcu arahor@xps
+  - &id_xps ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmctnrSAI2N2Hv6e3g1e5dExv75irOQSJFJm8xbH/Sx arakhor@xps
   - &host_xps age1055ze3zzystdp4nf7kkm4tejlkltwwyjml2un4ru9qwzhx07cesqhyc7sa
 creation_rules:
   - path_regex: secrets/xps\.yaml$

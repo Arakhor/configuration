@@ -1,10 +1,13 @@
 {
   universal =
-    { pkgs, lib, ... }:
+    { lib, ... }:
     {
+      imports = [ (lib.mkAliasOptionModule [ "packages" ] [ "environment" "systemPackages" ]) ];
 
       system.stateVersion = "25.11";
       nixpkgs.config.allowUnfree = true;
+
+      programs.nix-ld.enable = true;
 
       zramSwap = {
         enable = lib.mkDefault true;
@@ -15,12 +18,7 @@
 
       services.earlyoom = {
         enable = lib.mkDefault true;
-        extraArgs = lib.mkDefault [
-          "-M"
-          "409600,307200"
-          "-S"
-          "409600,307200"
-        ];
+        enableNotifications = true;
       };
 
       environment.sessionVariables = {

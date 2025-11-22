@@ -52,6 +52,7 @@
           "Videos"
         ];
       };
+
       systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
     };
 }

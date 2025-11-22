@@ -8,7 +8,7 @@
           alacrittyConfig = {
             mouse.hide_when_typing = true;
             font = {
-              normal.family = "Lilex Nerd Font";
+              normal.family = "Aporetic Sans";
               size = 12;
             };
             scrolling.history = 10000;
