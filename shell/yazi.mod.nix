@@ -68,9 +68,10 @@
                 };
               in
               [
-                (previewer "name" "*/" ''piper -- nucat $1'')
-                (previewer "mime" "text/*" ''piper -- nucat $1'')
-                (previewer "mime" "application/{mbox,javascript,wine-extension-ini}" ''piper -- nucat $1'')
+                (previewer "name" "*/" ''piper -- nucat "$1" -c "$w" -r "$h"'')
+                # (previewer "name" "*" ''piper -- nucat "$1" -c "$w" -r "$h"'')
+                (previewer "mime" "text/*" ''piper -- nucat "$1"'')
+                (previewer "mime" "application/{mbox,javascript,wine-extension-ini}" ''piper -- nucat "$1"'')
                 (previewer "mime" "{image,audio,video}/*" "mediainfo")
                 (previewer "mime" "application/x-subrip" "mediainfo")
               ];
@@ -95,7 +96,7 @@
             };
 
           theme = {
-            mgr.border_style.fg = "cyan";
+            mgr.border_style.fg = "darkgray";
             mgr.border_symbol = "│";
           };
         };
@@ -108,15 +109,12 @@
         {
           settings = {
             hooks.env_change.PWD = [
-              (
-                # nu
-                mkNushellInline ''
-                  {
-                    condition: { "YAZI_ID" in $env }
-                    code: {|_, dir| ya emit cd $"($dir)" }
-                  }
-                ''
-              )
+              (mkNushellInline ''
+                {
+                  condition: { "YAZI_ID" in $env }
+                  code: {|_, dir| ya emit cd $"($dir)" }
+                }
+              '')
             ];
 
             keybindings = [

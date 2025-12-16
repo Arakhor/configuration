@@ -68,11 +68,15 @@
       ];
 
       home.programs.niri.settings.input = {
+        focus-follows-mouse.enable = true;
+        warp-mouse-to-focus.enable = true;
+        warp-mouse-to-focus.mode = "center-xy-always";
+
         keyboard.xkb.layout = config.locale.keyboard-layout;
         touchpad = {
           dwt = true;
-          tap = false;
-          natural-scroll = true;
+          tap = true;
+          natural-scroll = false;
           click-method = "clickfinger";
           # accel-profile = "flat";
           # accel-speed = 0.0;
@@ -94,7 +98,8 @@
               space = {
                 held = "shift_l";
                 alone = "space";
-                free_hold = true;
+                free_hold = false;
+                alone_timeout_millis = 300;
               };
               control_l = "capslock";
             };

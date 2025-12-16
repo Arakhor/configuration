@@ -1,5 +1,5 @@
 attribute = "white"
-keyword = "red"
+keyword = { fg = "red", modifiers = ["italic"] }
 namespace = "yellow"
 punctuation = "white"
 "punctuation.delimiter" = "white"
@@ -8,16 +8,16 @@ special = "blue"
 "variable.other.member" = "blue"
 variable = "white"
 "variable.parameter" = "white"
-"variable.builtin" = "light-red"
+"variable.builtin" = { fg = "light-red", modifiers = ["bold"] }
 type = "yellow"
-"type.builtin" = "magenta"
+"type.builtin" = { fg = "magenta", modifiers = ["bold"] }
 constructor = "cyan"
 function = "tertiary"
 "function.macro" = "tertiary"
 tag = "green"
-comment = "gray"
+comment = { fg = "secondary", modifiers = ["italic"] }
 constant = "blue"
-"constant.builtin" = "blue"
+"constant.builtin" = { fg = "blue", modifiers = ["bold"] }
 string = "magenta"
 "constant.numeric" = "blue"
 "constant.character.escape" = "blue"
@@ -59,7 +59,7 @@ label = "light-red"
 "ui.bufferline.active" = { fg = "on_primary_container", bg = "primary_container" }
 
 # Popups / menus / pickers
-"ui.popup" = { fg = "on_surface", bg = "blue" }
+"ui.popup" = { fg = "on_surface", bg = "surface_container_high" }
 "ui.popup.info" = { fg = "outline", bg = "surface_container" }
 "ui.menu" = { fg = "on_surface", bg = "surface_container" }
 "ui.menu.selected" = { fg = "on_primary", bg = "primary" }
@@ -121,10 +121,10 @@ label = "light-red"
 "markup.raw.inline.hover" = { fg = "on_surface", bg = "surface_container_high" }
 
 # Diff / VCS
-"diff.plus" = { fg = "on_surface", bg = "surface_container_low" }
-"diff.minus" = { fg = "on_surface", bg = "surface_container_low" }
-"diff.plus.gutter" = { fg = "on_surface", bg = "surface" }
-"diff.minus.gutter" = { fg = "on_surface", bg = "surface" }
+"diff.plus" = { fg = "green", bg = "surface_container_low" }
+"diff.minus" = { fg = "red", bg = "surface_container_low" }
+"diff.plus.gutter" = { fg = "green", bg = "surface" }
+"diff.minus.gutter" = { fg = "red", bg = "surface" }
 "diff.delta" = { fg = "primary", bg = "surface_container_low" }
 "diff.moved" = { fg = "secondary", bg = "surface_container_low" }
 "diff.conflict" = { fg = "on_error_container", bg = "error_container" }
@@ -141,5 +141,8 @@ rainbow = [
 
 [palette]
 <* for name, value in colors *>
+{{ name }} = "{{ value.default.hex }}"
+<* endfor *>
+<* for name, value in dank16 *>
 {{ name }} = "{{ value.default.hex }}"
 <* endfor *>

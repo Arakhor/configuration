@@ -99,9 +99,7 @@
           keybindings = [
             {
               name = "cut_line_to_end";
-              event = {
-                edit = "cuttoend";
-              };
+              event.edit = "cuttoend";
               keycode = "char_k";
               mode = [
                 "emacs"
@@ -114,68 +112,61 @@
               name = "cut_line_from_start";
               modifier = "control";
               keycode = "char_u";
+              event.edit = "cutfromstart";
               mode = [
                 "emacs"
                 "vi_insert"
               ];
-              event.edit = "cutfromstart";
             }
 
             {
               name = "completion_menu_next";
-              event = {
-                until = [
-                  {
-                    name = "completion_menu";
-                    send = "menu";
-                  }
-                  { send = "menunext"; }
-                  { edit = "complete"; }
-                ];
-              };
+              modifier = "control";
               keycode = "char_n";
+              event.until = [
+                {
+                  name = "completion_menu";
+                  send = "menu";
+                }
+                { send = "menunext"; }
+                { edit = "complete"; }
+              ];
               mode = [
                 "emacs"
                 "vi_normal"
                 "vi_insert"
               ];
-              modifier = "control";
-
             }
 
             {
               name = "completion_menu_prev";
-              event = {
-                until = [
-                  {
-                    name = "completion_menu";
-                    send = "menu";
-                  }
-                  { send = "menuprevious"; }
-                  { edit = "complete"; }
-                ];
-              };
+              modifier = "control";
               keycode = "char_p";
+              event.until = [
+                {
+                  name = "completion_menu";
+                  send = "menu";
+                }
+                { send = "menuprevious"; }
+                { edit = "complete"; }
+              ];
               mode = [
                 "emacs"
                 "vi_normal"
                 "vi_insert"
               ];
-              modifier = "control";
             }
 
             {
               name = "completion_menu_complete";
-              event = {
-                send = "Enter";
-              };
+              modifier = "control";
               keycode = "char_y";
+              event.send = "Enter";
               mode = [
                 "emacs"
                 "vi_normal"
                 "vi_insert"
               ];
-              modifier = "control";
             }
 
             {

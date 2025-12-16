@@ -50,15 +50,15 @@
 
           font-feature = "+ss01,+ss02,+ss03,+ss04,+ss05,+ss06,+ss07,+ss08,+ss09,+ss10,+liga,+dlig,+calt";
 
-          font-size = 12;
-          adjust-cell-height = "30%";
+          font-size = 9;
+          adjust-cell-height = "40%";
           adjust-underline-position = "20%";
 
           shell-integration-features = "ssh-env";
           confirm-close-surface = false;
 
-          # background-opacity = 0.95;
-          # background-opacity-cells = true;
+          background-opacity = 0.95;
+          background-opacity-cells = true;
 
           mouse-hide-while-typing = true;
           quit-after-last-window-closed = true;
@@ -101,6 +101,9 @@
               "ctrl+s>shift+l=resize_split:right,10"
 
               "ctrl+s>r=reload_config"
+
+              # send ctrl+s itself, by tapping it twice
+              "ctrl+s>ctrl+s=text:\\x13"
             ]
           ];
         };

@@ -16,7 +16,7 @@
                   force = false;
                 })
                 {
-                  CARAPACE_BRIDGES = "fish, bash";
+                  CARAPACE_BRIDGES = "fish,bash";
                   CARAPACE_HIDDEN = 1;
                   CARAPACE_LENIENT = 1;
                   CARAPACE_MATCH = 1; # 0 = case sensitive, 1 = case insensitive

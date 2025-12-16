@@ -49,8 +49,7 @@
     danksearch.url = "github:AvengeMedia/danksearch";
     danksearch.inputs.nixpkgs.follows = "nixpkgs";
 
-    quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
-    quickshell.inputs.nixpkgs.follows = "nixpkgs";
+    quickshell.follows = "dms";
 
     matugen.url = "github:InioX/matugen";
     matugen.inputs.nixpkgs.follows = "nixpkgs";
@@ -119,7 +118,8 @@
       elements = {
         # used as an identifier for ip addresses, etc.
         # and this set defines what systems are exported
-        xps.id = 6;
+        xps.id = 24;
+        zeph.id = 96;
       };
 
       raw-configs = mapAttrs (const (

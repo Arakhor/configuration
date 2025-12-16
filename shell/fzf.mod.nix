@@ -44,27 +44,46 @@
     in
     {
       packages = with pkgs; [
+        timg
         fzf
         eza
+        file
+        mediainfo
         bat
         fd
         ripgrep
+        television
+        nix-search-tv
 
         (config.lib.nushell.writeNuBin "nucat" # nu
           ''
-            def main [path] {
-                let type = (ls -D $path | get type).0
-                match $type {
-                    dir => { ${pkgs.eza}/bin/eza ${lib.concatStringsSep " " ezaArgs} -TL3 $"($path)" }
-                    file => {
-                      let extension = ($path | path parse | get extension)
-                      match $extension {
-                          "nu"|"nuon" => { open --raw $"($path)" | nu-highlight }
-                          _ => { ${pkgs.bat}/bin/bat -Ppf $"($path)" }
-                      }
-                     }
-                    _ => { }
+            def main [
+              path: any
+              --columns(-c): int
+              --rows(-r): int
+            ] {
+              let type = $path | path expand | path type
+              let mime = (file --mime-type --brief $path )
+              let extension = ($path | path parse | get extension)
+
+              let width = if ($columns | is-not-empty) { $columns } else { (term size).columns }
+              let height = if ($rows | is-not-empty) { $rows } else { (term size).rows }
+
+              match $type {
+                dir => { ${pkgs.eza}/bin/eza ${lib.concatStringsSep " " ezaArgs} -TL3 $"($path)" }
+                file => {
+                  if $mime starts-with "image" {
+                    ${pkgs.timg}/bin/timg $path $"-g($width)x($height)"
+                    ${pkgs.mediainfo}/bin/mediainfo $path
+                  } else {
+                    match $extension {
+                      "nu"|"nuon" => { open --raw $"($path)" | nu-highlight }
+                      _ => { ${pkgs.bat}/bin/bat -Ppf $"($path)" }
+                    }
+                  }
                 }
+                _ => { }
+              }
             }
           ''
         )

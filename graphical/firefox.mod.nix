@@ -1,5 +1,5 @@
 {
-  graphical =
+  graphical.home =
     {
       config,
       pkgs,
@@ -7,7 +7,7 @@
       ...
     }:
     {
-      home.packages = [
+      packages = [
         (pkgs.firefox.overrideAttrs (old: {
           buildCommand =
             let
@@ -29,7 +29,7 @@
         }))
       ];
 
-      home.systemd =
+      systemd =
         let
           rsync = lib.getExe pkgs.rsync;
           fd = lib.getExe pkgs.fd;
@@ -63,7 +63,7 @@
 
             serviceConfig = {
               Type = "oneshot";
-              Slice = "app-graphical.slice";
+              Slice = "app.slice";
               ExecStart =
                 (pkgs.writeShellScript "firefox-persist-init" # bash
                   ''
@@ -120,13 +120,8 @@
           };
         };
 
-      # preserveHome.directories = [
-      #   ".mozilla"
-      #   ".cache/mozilla"
-      # ];
-
-      home.programs.niri.settings.binds = with config.home.lib.niri.actions; {
-        "Mod+B".action = spawn-sh "app2unit -t service firefox.desktop";
+      programs.niri.settings.binds = with config.lib.niri.actions; {
+        "Mod+B".action = spawn-sh "firefox";
       };
     };
 }

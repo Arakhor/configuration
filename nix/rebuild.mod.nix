@@ -2,6 +2,7 @@ inputs: {
   universal =
     { lib, nixosConfig, ... }:
     {
+
       programs.nh.enable = true;
       programs.nh.flake = "/home/arakhor/configuration";
       preserveHome.directories = [ "configuration" ];
@@ -16,6 +17,11 @@ inputs: {
       environment.etc = {
         current-flake.source = inputs.self;
         current-rev.text = "${inputs.self.sourceInfo.rev or "dirty"}";
+      };
+
+      programs.nushell.shellAliases = {
+        nx = "nh os switch --accept-flake-config --show-trace";
+        ns = "nh search";
       };
 
       # Sometimes nixos-rebuild compiles large pieces software that require more

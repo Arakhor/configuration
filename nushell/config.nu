@@ -84,8 +84,6 @@ $env.config.menus ++= [
     }
 }
 
-
-
 $env.config.keybindings ++= [
     {
         name: cut_line_to_end

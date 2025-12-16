@@ -17,7 +17,7 @@
 
       systemd.user.services.niri-flake-polkit.enable = false;
 
-      packages = with pkgs; [
+      environment.systemPackages = with pkgs; [
         alacritty
         libnotify
         wl-clipboard
@@ -112,12 +112,6 @@
               hide-when-typing = true;
             };
 
-            input = {
-              focus-follows-mouse.enable = true;
-              warp-mouse-to-focus.enable = true;
-              warp-mouse-to-focus.mode = "center-xy-always";
-            };
-
             # switch-events =
             #   let
             #     sh = spawn "sh" "-c";
@@ -135,23 +129,22 @@
             };
 
             layout = {
-              background-color = "#000000";
-              gaps = 4;
               always-center-single-column = true;
-              # center-focused-column = "on-overflow";
               default-column-display = "tabbed";
               empty-workspace-above-first = true;
 
-              border = {
-                enable = true;
-                width = 1.5;
-                active.color = "#ffffff80";
-                inactive.color = "#ffffff33";
-              };
-
+              border.enable = true;
               focus-ring.enable = false;
 
-              shadow.enable = true;
+              shadow = {
+                enable = true;
+                softness = 20;
+                spread = 2;
+                offset = {
+                  x = 0;
+                  y = 4;
+                };
+              };
 
               tab-indicator = {
                 position = "right";
@@ -173,32 +166,7 @@
 
             animations.window-resize.custom-shader = builtins.readFile ./resize.glsl;
 
-            layer-rules = [
-              {
-                matches = [ { namespace = "dms:blurwallpaper"; } ];
-                place-within-backdrop = true;
-              }
-            ];
-
             window-rules = [
-              {
-                matches = [ { is-focused = false; } ];
-                opacity = 0.9;
-              }
-              {
-                draw-border-with-background = false;
-                clip-to-geometry = true;
-                geometry-corner-radius =
-                  let
-                    r = 12.0;
-                  in
-                  {
-                    top-left = r;
-                    top-right = r;
-                    bottom-left = r;
-                    bottom-right = r;
-                  };
-              }
               {
                 matches = [
                   {
@@ -215,7 +183,6 @@
                 };
                 default-column-width.fixed = 480;
                 default-window-height.fixed = 270;
-
               }
             ];
 
@@ -232,7 +199,7 @@
                   "XF86AudioNext".action = playerctl "next";
                 }
                 {
-                  "Mod+T".action = spawn-sh "app2unit -t service com.mitchellh.ghostty.desktop";
+                  "Mod+T".action = spawn-sh "ghostty +new-window";
 
                   "Mod+Shift+S".action.screenshot = [ ];
                   "Print".action.screenshot-screen = [ ];
@@ -336,7 +303,7 @@
         };
       };
       # internal laptop display
-      outputs."eDP-1".scale = 2.;
+      outputs."eDP-1".scale = 2.5;
     };
   };
 }

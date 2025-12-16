@@ -24,31 +24,38 @@
       };
     in
     {
-      programs.nushell.environmentVariables =
+      programs.nushell.environmentVariables = lib.mkMerge [
         envVars
-        // envVarsExtra
-        // {
+        envVarsExtra
+        {
           ENV_CONVERSIONS = with config.lib.nushell; {
             QT_PLUGIN_PATH = esepListConverter;
             QML2_IMPORT_PATH = esepListConverter;
+            QTWEBKIT_PLUGIN_PATH = esepListConverter;
           };
-        };
+        }
+      ];
 
-      home = {
-        packages =
-          lib.optionals qt5Support [
-            pkgs.libsForQt5.qt5ct
-            pkgs.libsForQt5.qtdeclarative
-            pkgs.libsForQt5.qtmultimedia
-          ]
-          ++ [
-            pkgs.kdePackages.qt6ct
-            pkgs.kdePackages.qtdeclarative
-            pkgs.kdePackages.qtmultimedia
-          ];
+      home.packages =
+        lib.optionals qt5Support [
+          pkgs.libsForQt5.qt5ct
+          pkgs.libsForQt5.qtdeclarative
+          pkgs.libsForQt5.qtmultimedia
+          pkgs.libsForQt5.kirigami2
+          pkgs.libsForQt5.sonnet
+        ]
+        ++ [
+          pkgs.kdePackages.qt6ct
+          pkgs.kdePackages.qtdeclarative
+          pkgs.kdePackages.qtmultimedia
+          pkgs.kdePackages.kirigami.unwrapped
+          pkgs.kdePackages.sonnet
+        ]
+        ++ [
+          pkgs.ffmpeg
+        ];
 
-        systemd.globalEnvironment =
-          envVars // (builtins.mapAttrs (_: lib.concatStringsSep ":") envVarsExtra);
-      };
+      systemd.globalEnvironment =
+        envVars // (builtins.mapAttrs (_: lib.concatStringsSep ":") envVarsExtra);
     };
 }

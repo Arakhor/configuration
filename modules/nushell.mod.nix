@@ -241,7 +241,7 @@
             to_string = mkNushellInline "{|v| $v | str join \"${char}\" }";
           };
           esepListConverter = converterBySeparator "(char esep)";
-          spaceListConverter = converterBySeparator "(char esep)";
+          spaceListConverter = converterBySeparator "(char space)";
         };
 
         environment = {

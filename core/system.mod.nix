@@ -1,10 +1,11 @@
 {
   universal =
-    { lib, ... }:
+    { lib, pkgs, ... }:
     {
       imports = [ (lib.mkAliasOptionModule [ "packages" ] [ "environment" "systemPackages" ]) ];
 
       system.stateVersion = "25.11";
+      boot.kernelPackages = pkgs.linuxPackages_latest;
       nixpkgs.config.allowUnfree = true;
 
       programs.nix-ld.enable = true;

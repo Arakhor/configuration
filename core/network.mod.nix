@@ -1,20 +1,26 @@
 {
   universal =
-    { config, ... }:
+    { config, pkgs, ... }:
     {
+      programs.localsend.enable = true;
+
+      # to make `dig` & other utils available
+      environment.systemPackages = [ pkgs.bind.dnsutils ];
+
+      networking.firewall.enable = true;
       networking.firewall.allowPing = true;
       networking.firewall.logRefusedConnections = false;
 
+      networking.useNetworkd = true;
       systemd.network.enable = true;
       systemd.network.wait-online.enable = false;
-      networking.useNetworkd = true;
+      systemd.services.systemd-networkd.stopIfChanged = false;
 
       services.resolved.enable = false;
       environment.etc."resolv.conf".text = ''
         ${builtins.concatStringsSep "\n" (map (ns: "nameserver ${ns}") config.networking.nameservers)}
         options edns0
       '';
-
       networking.nameservers = [
         "1.1.1.1"
         "1.0.0.1"
@@ -22,14 +28,17 @@
         "2606:4700:4700::1001"
       ];
 
-      systemd.services.systemd-networkd.stopIfChanged = false;
-
-      preserveSystem.directories = [
-        {
-          directory = "/var/lib/iwd";
-          mode = "0700";
-        }
-      ];
+      services.avahi = {
+        enable = true;
+        # publish the local machines IP
+        publish = {
+          enable = true;
+          addresses = true;
+        };
+        # resolve .local domains via avahi discovery
+        nssmdns4 = true;
+        nssmdns6 = true;
+      };
 
       networking.wireless = {
         userControlled.enable = true;
@@ -44,5 +53,12 @@
           };
         };
       };
+
+      preserveSystem.directories = [
+        {
+          directory = "/var/lib/iwd";
+          mode = "0700";
+        }
+      ];
     };
 }
