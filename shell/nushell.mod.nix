@@ -9,6 +9,7 @@
     {
       lib,
       pkgs,
+      config,
       nixosConfig,
       ...
     }:
@@ -25,7 +26,7 @@
 
       users.users.arakhor.shell = nixosConfig.programs.nushell.finalPackage;
 
-      programs.nushell = {
+      programs.nushell = rec {
         enable = true;
 
         environmentVariables = {
@@ -65,6 +66,10 @@
             vi_normal = "block";
           };
           use_kitty_protocol = true;
+
+          hooks.env_change = lib.genAttrs (lib.attrNames environmentVariables.ENV_CONVERSIONS) (_: [
+            "$env.ENV_CONVERSIONS = $env.ENV_CONVERSIONS"
+          ]);
 
           display_errors = {
             exit_code = false;
@@ -210,7 +215,7 @@
 
         shellInit = # nu
           ''
-            source /home/arakhor/configuration/nushell/theme.nu
+            source /home/arakhor/configuration/shell/theme.nu
             # Setup completions on non-interactive shells for use with nu-lsp
             def nix-completer [spans: list<string>] {
               let current_arg = $spans | length| $in - 1

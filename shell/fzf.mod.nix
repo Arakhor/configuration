@@ -43,6 +43,10 @@
       ];
     in
     {
+
+      # Dircolors
+      home.file.home.".dircolors".source = ./dircolors;
+
       packages = with pkgs; [
         timg
         fzf

@@ -24,7 +24,6 @@
         etc.overlay.enable = mkDefault true;
         nixos-init.enable = mkDefault nixosConfig.system.etc.overlay.enable;
 
-        rebuild.enableNg = mkDefault true;
         tools.nixos-generate-config.enable = mkDefault false;
       };
     };

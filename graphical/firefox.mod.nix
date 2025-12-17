@@ -15,7 +15,7 @@
               notifySend = lib.getExe pkgs.libnotify;
             in
             # Setting MESA_SHADER_CACHE_DIR here fixes the following log spam:
-            # Failed to create /home/joshua/.cache for shader cache (Permission denied)---disabling.
+            # Failed to create /home/arakhor/.cache for shader cache (Permission denied)---disabling.
             # I've got no idea why firefox can't access ~/.cache
             # Same issue but with flatpak: https://github.com/zen-browser/desktop/issues/2767
             # bash

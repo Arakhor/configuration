@@ -45,12 +45,6 @@
 
       preserveHome = {
         commonMountOptions = [ "x-gvfs-hide" ];
-        directories = [
-          "Downloads"
-          "Pictures"
-          "Music"
-          "Videos"
-        ];
       };
 
       systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];

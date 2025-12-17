@@ -30,32 +30,26 @@
     ghostty.url = "github:ghostty-org/ghostty";
     helix.url = "github:helix-editor/helix";
 
-    zen-browser.url = "github:0xc000022070/zen-browser-flake";
-    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
-
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-
-    firefox-addons.url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-    firefox-addons.inputs.nixpkgs.follows = "nixpkgs";
-
     # DMS:
     dms.url = "github:AvengeMedia/DankMaterialShell";
     dms.inputs.nixpkgs.follows = "nixpkgs";
+
     dms-plugins.url = "github:AvengeMedia/dms-plugins";
     dms-plugins.flake = false;
+
     dgop.url = "github:AvengeMedia/dgop";
     dgop.inputs.nixpkgs.follows = "nixpkgs";
+
     danksearch.url = "github:AvengeMedia/danksearch";
     danksearch.inputs.nixpkgs.follows = "nixpkgs";
 
-    quickshell.follows = "dms";
-
-    matugen.url = "github:InioX/matugen";
-    matugen.inputs.nixpkgs.follows = "nixpkgs";
+    quickshell.follows = "dms/quickshell";
 
     # MISC:
     treefmt-nix.url = "github:numtide/treefmt-nix";
+
+    glide.url = "github:glide-browser/glide.nix";
+    glide.inputs.nixpkgs.follows = "nixpkgs";
 
     topiary-nushell.url = "github:blindFS/topiary-nushell";
     topiary-nushell.flake = false;

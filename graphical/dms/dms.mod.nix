@@ -1,4 +1,9 @@
-{ niri, ... }:
+{
+  niri,
+  dms,
+  quickshell,
+  ...
+}:
 {
   graphical =
     {
@@ -12,6 +17,13 @@
       inherit (homeConfig.maid) systemdGraphicalTarget;
     in
     {
+      nixpkgs.overlays = [
+        (prev: final: {
+          dms-shell = dms.packages.${pkgs.stdenv.buildPlatform.system}.default;
+          quickshell = quickshell.packages.${pkgs.stdenv.buildPlatform.system}.default;
+        })
+      ];
+
       programs.dms-shell = {
         enable = true;
       };
@@ -79,7 +91,6 @@
         ];
         directories = [
           ".local/state/DankMaterialShell"
-          ".config/DankMaterialShell"
           ".config/niri/dms"
           ".cache/DankMaterialShell"
           ".cache/danksearch"
@@ -125,6 +136,8 @@
             '';
           in
           {
+            "DankMaterialShell/settings.json".source = ./settings.json;
+            "DankMaterialShell/plugin_settings.json".source = ./plugin_settings.json;
             "gtk-3.0/gtk.css".text = gtkcss;
             "gtk-4.0/gtk.css".text = gtkcss;
             "qt5ct/qt5ct.conf".text = qtconf 5;
