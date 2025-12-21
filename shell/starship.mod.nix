@@ -94,15 +94,11 @@
                 read_only_style = "bold fg:red";
               };
 
-            character =
-              let
-                style = "bold fg:green";
-              in
-              {
-                success_symbol = "[](bold fg:bright-green)";
-                vimcmd_symbol = "[](bold fg:bright-cyan)";
-                error_symbol = "[](bold fg:bright-red)";
-              };
+            character = {
+              success_symbol = "[](bold fg:bright-green)";
+              vimcmd_symbol = "[](bold fg:bright-cyan)";
+              error_symbol = "[](bold fg:bright-red)";
+            };
 
             git_branch = {
               format = mkContainer "[$symbol$branch(:$remote_branch)]($style)";
