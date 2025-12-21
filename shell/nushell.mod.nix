@@ -14,10 +14,57 @@
       ...
     }:
     let
-      inherit (lib.ns.nushell) mkNushellInline;
+      inherit (lib.ns.nushell) isNushellInline mkNushellInline toNushell;
+
+      mkLibs = libraries: ''
+        const NU_LIB_DIRS = $NU_LIB_DIRS ++ [ ${lib.concatStringsSep " " libraries} ];
+      '';
+
+      mkAliases = aliases: lib.concatLines (lib.mapAttrsToList (k: v: "alias ${k} = ${v}") aliases);
+
+      mkSettings =
+        settings:
+        let
+          flattenSettings =
+            let
+              joinDot = a: b: "${if a == "" then "" else "${a}."}${b}";
+              unravel =
+                prefix: value:
+                if lib.isAttrs value && !isNushellInline value then
+                  lib.concatMap (key: unravel (joinDot prefix key) value.${key}) (builtins.attrNames value)
+                else
+                  [ (lib.nameValuePair prefix value) ];
+            in
+            unravel "";
+          mkLine =
+            { name, value }:
+            ''
+              $env.config.${name} = ${toNushell { } value}
+            '';
+        in
+        lib.concatMapStrings mkLine (flattenSettings settings);
+
+      mkEnv = env: ''
+        load-env ${toNushell { } env}
+      '';
+
+      mkPluginConfig =
+        plugins: package:
+        let
+          pluginExprs = map (plugin: "plugin add ${lib.getExe plugin}") plugins;
+        in
+        pkgs.runCommandLocal "plugin.msgpackz" { nativeBuildInputs = [ package ]; } ''
+          touch $out {config,env}.nu
+          nu --config config.nu \
+          --env-config env.nu \
+          --plugin-config plugin.msgpackz \
+          --no-history \
+          --no-std-lib \
+          --commands '${lib.concatStringsSep ";" pluginExprs};'
+          cp plugin.msgpackz $out
+        '';
     in
     {
-
       nixpkgs.overlays = [ nushell-nightly.overlays.default ];
       nix.settings.substituters = [ "https://nushell-nightly.cachix.org" ];
       nix.settings.trusted-public-keys = [
@@ -25,6 +72,15 @@
       ];
 
       users.users.arakhor.shell = nixosConfig.programs.nushell.finalPackage;
+
+      wrapperManager.wrappers.nushell.pathAdd = with pkgs; [
+        zoxide
+        yazi
+
+        wrapped.helix
+        wrapped.carapace
+        wrapped.starship
+      ];
 
       programs.nushell = rec {
         enable = true;

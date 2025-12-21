@@ -145,14 +145,6 @@
       );
     in
     {
-      # devShells = forAllSystems (
-      #     system:
-      #     import ./shell.nix {
-      #         inherit system;
-      #         flake = self;
-      #     }
-      # );
-
       formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
       checks = forAllSystems (system: {

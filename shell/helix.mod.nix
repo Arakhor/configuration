@@ -125,7 +125,7 @@ inputs: {
           };
         };
 
-        theme = "matugen";
+        theme = "flexoki_dark";
       };
 
       # Language and LSP config.
@@ -229,7 +229,7 @@ inputs: {
         "helix/languages.toml".source = tomlformat.generate "helix-languages" languages;
       };
 
-      wrapper-manager.wrappers.helix = {
+      wrapperManager.wrappers.helix = {
         basePackage = pkgs.helix;
         pathAdd = with pkgs; [
           nixd

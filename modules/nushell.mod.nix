@@ -172,61 +172,63 @@
           type = lib.types.package;
           readOnly = true;
           description = "Resulting package.";
-          default = pkgs.mkWrapper {
-            basePackage = cfg.package;
-            pathAdd = cfg.plugins;
-            env.NU_EXPERIMENTAL_OPTIONS.value = (lib.concatStringsSep "," cfg.experimentalOptions);
-            prependFlags = [
-              "--config"
-              (pkgs.writeText "config.nu" # nu
-                ''
-                  # Load libraries first
-                  const NU_LIB_DIRS = $NU_LIB_DIRS ++ [ ${lib.concatStringsSep " " cfg.libraries} ];
-
-                  source (if ($nu.is-login) {"${preInitNu}"})
-                  ${
-                    let
-                      hasEnvVars = cfg.environmentVariables != { };
-                      envVarsStr = ''
-                        load-env ${toNushell { } cfg.environmentVariables}
-                      '';
-                    in
-                    lib.optionalString hasEnvVars envVarsStr
-                  }
-
-                  source "${initNu}"
-                  source (if ($nu.is-login) {"${loginInitNu}"})
-                  source (if ($nu.is-interactive) {"${interactiveInitNu}"})
-
-                  ${lib.optionalString (cfg.settings != { }) (mkSettings cfg.settings)}
-
-                  # Source user configuration if it exists
-                  const def_user_config_file = $nu.default-config-dir | path join config.nu
-                  source (if ($def_user_config_file | path exists) {$def_user_config_file})
-                ''
-              )
-              "--plugin-config"
-              (
-                let
-                  pluginExprs = map (plugin: "plugin add ${lib.getExe plugin}") cfg.plugins;
-                in
-                pkgs.runCommandLocal "plugin.msgpackz" { nativeBuildInputs = [ cfg.package ]; } ''
-                  touch $out {config,env}.nu
-                  nu --config config.nu \
-                  --env-config env.nu \
-                  --plugin-config plugin.msgpackz \
-                  --no-history \
-                  --no-std-lib \
-                  --commands '${lib.concatStringsSep ";" pluginExprs};'
-                  cp plugin.msgpackz $out
-                ''
-              )
-            ];
-          };
+          default = pkgs.wrapped.nushell;
         };
       };
 
       config = lib.mkIf cfg.enable {
+        wrapperManager.wrappers.nushell = {
+          basePackage = cfg.package;
+          pathAdd = cfg.plugins;
+          env.NU_EXPERIMENTAL_OPTIONS.value = (lib.concatStringsSep "," cfg.experimentalOptions);
+          prependFlags = [
+            "--config"
+            (pkgs.writeText "config.nu" # nu
+              ''
+                # Load libraries first
+                const NU_LIB_DIRS = $NU_LIB_DIRS ++ [ ${lib.concatStringsSep " " cfg.libraries} ];
+
+                source (if ($nu.is-login) {"${preInitNu}"})
+                ${
+                  let
+                    hasEnvVars = cfg.environmentVariables != { };
+                    envVarsStr = ''
+                      load-env ${toNushell { } cfg.environmentVariables}
+                    '';
+                  in
+                  lib.optionalString hasEnvVars envVarsStr
+                }
+
+                source "${initNu}"
+                source (if ($nu.is-login) {"${loginInitNu}"})
+                source (if ($nu.is-interactive) {"${interactiveInitNu}"})
+
+                ${lib.optionalString (cfg.settings != { }) (mkSettings cfg.settings)}
+
+                # Source user configuration if it exists
+                const def_user_config_file = $nu.default-config-dir | path join config.nu
+                source (if ($def_user_config_file | path exists) {$def_user_config_file})
+              ''
+            )
+            "--plugin-config"
+            (
+              let
+                pluginExprs = map (plugin: "plugin add ${lib.getExe plugin}") cfg.plugins;
+              in
+              pkgs.runCommandLocal "plugin.msgpackz" { nativeBuildInputs = [ cfg.package ]; } ''
+                touch $out {config,env}.nu
+                nu --config config.nu \
+                --env-config env.nu \
+                --plugin-config plugin.msgpackz \
+                --no-history \
+                --no-std-lib \
+                --commands '${lib.concatStringsSep ";" pluginExprs};'
+                cp plugin.msgpackz $out
+              ''
+            )
+          ];
+        };
+
         lib.nushell = rec {
           writeNu =
             name: argsOrScript:

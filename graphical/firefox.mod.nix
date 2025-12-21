@@ -33,7 +33,7 @@
         let
           rsync = lib.getExe pkgs.rsync;
           fd = lib.getExe pkgs.fd;
-          persistDir = "/persist/home/arakhor/.mozilla/";
+          persistDir = "/state/home/arakhor/.mozilla/";
           tmpfsDir = "/home/arakhor/.mozilla/";
 
           syncToTmpfs = # bash

@@ -7,23 +7,22 @@
     in
     {
 
-      options.wrapper-manager = wm.options;
+      options.wrapperManager = wm.options;
       config = {
-
-        wrapper-manager = {
+        wrapperManager = {
           build = {
             toplevel = pkgs.buildEnv {
               name = "wrapper-manager-bundle";
               paths = builtins.attrValues config.wrapper-manager.build.packages;
             };
 
-            packages = builtins.mapAttrs (_: value: value.wrapped) config.wrapper-manager.wrappers;
+            packages = builtins.mapAttrs (_: value: value.wrapped) config.wrapperManager.wrappers;
           };
         };
 
         nixpkgs.overlays = [
           (final: prev: {
-            wrapped = config.wrapper-manager.build.packages;
+            wrapped = config.wrapperManager.build.packages;
             mkWrapper =
               module:
               let
