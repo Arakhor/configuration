@@ -32,7 +32,7 @@
       wrapperManager.wrappers.starship = {
         basePackage = pkgs.starship;
         env.STARSHIP_CONFIG.value = (
-          (pkgs.formats.toml { }).generate "alacritty.toml" config.programs.starship.settings
+          (pkgs.formats.toml { }).generate "starship.toml" config.programs.starship.settings
         );
       };
 
