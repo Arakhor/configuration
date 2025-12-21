@@ -138,28 +138,6 @@ in
       };
     };
 
-    mdadm.md-nix = {
-      type = "mdadm";
-      level = 1;
-      metadata = "1.2";
-      content = {
-        type = "btrfs";
-        extraArgs = [
-          "-L"
-          "nix"
-          "-m"
-          "single"
-          "-d"
-          "single"
-        ];
-        mountpoint = "/nix";
-        mountOptions = [
-          "compress=zstd"
-          "noatime"
-        ];
-      };
-    };
-
     nodev."/" = {
       fsType = "tmpfs";
       mountOptions = [
