@@ -11,15 +11,15 @@
         ];
         loader = {
           efi.canTouchEfiVariables = true;
-          limine = {
+
+          systemd-boot = {
             enable = true;
-            efiSupport = true;
-            style.wallpapers = [ ./blahaj-blue.png ];
-            maxGenerations = 10;
-            secureBoot.enable = true;
-            panicOnChecksumMismatch = true;
+            editor = false;
+            consoleMode = "auto";
+            configurationLimit = 10;
           };
-          # timeout = 0;
+
+          timeout = 0;
         };
 
         plymouth = {
