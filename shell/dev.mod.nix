@@ -4,6 +4,7 @@ inputs: {
     {
       home.packages = with pkgs; [
         # keep-sorted start
+        woeusb-ng
         bottom
         dust
         fastfetch

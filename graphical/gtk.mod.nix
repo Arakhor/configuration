@@ -7,14 +7,22 @@
       ...
     }:
     let
+      gtkTheme = "adw-gtk3";
+      iconTheme = "Papirus-Dark";
+      cursorTheme = "Adwaita";
+      cursorSize = 24;
+
       # GTK Settings
       gtkSettings = {
         "gtk-application-prefer-dark-theme" = 1;
-        "gtk-cursor-theme-name" = "Adwaita";
-        "gtk-cursor-theme-size" = 24;
+        "gtk-cursor-theme-name" = cursorTheme;
+        "gtk-cursor-theme-size" = cursorSize;
+        "gtk-icon-theme-name" = iconTheme;
+        "gtk-theme-name" = gtkTheme;
         "gtk-font-name" = "${config.fonts.sans} 10";
-        "gtk-icon-theme-name" = "MoreWaita";
-        "gtk-theme-name" = "adw-gtk3";
+        "gtk-decoration-layout" = "close,maximize,minimize:menu";
+        "gtk-enable-event-sounds" = true;
+        "gtk-enable-input-feedback-sounds" = true;
       };
 
       gtkIni = lib.generators.toINI { } { Settings = gtkSettings; };
@@ -23,13 +31,19 @@
       home = {
         packages = with pkgs; [
           adw-gtk3
-          adwaita-icon-theme
-          morewaita-icon-theme
+          papirus-icon-theme
         ];
 
         file.xdg_config = {
           "gtk-3.0/settings.ini".text = gtkIni;
           "gtk-4.0/settings.ini".text = gtkIni;
+        };
+
+        dconf.settings = {
+          "/org/gnome/desktop/interface/cursor-size" = cursorSize;
+          "/org/gnome/desktop/interface/cursor-theme" = cursorTheme;
+          "/org/gnome/desktop/interface/gtk-theme" = gtkTheme;
+          "/org/gnome/desktop/interface/icon-theme" = iconTheme;
         };
 
         gsettings.settings.org.gnome.desktop = {

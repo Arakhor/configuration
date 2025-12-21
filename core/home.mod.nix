@@ -30,16 +30,12 @@
       ];
 
       users.mutableUsers = false;
-      sops.secrets."users/arakhor/password".neededForUsers = true;
 
       users.users.arakhor = {
         isNormalUser = true;
         description = "arakhor";
-        extraGroups = [
-          "wheel"
-          "greeter"
-        ];
-        hashedPasswordFile = config.sops.secrets."users/arakhor/password".path;
+        extraGroups = [ "wheel" ];
+        hashedPassword = "$y$j9T$2RCRnlUsztuzTPbLjkPN50$LCDo/lkk9QQUVfNl0Xm7yM85t/uwAato.JlP3pCsLj4";
       };
 
       _module.args.nixosConfig = config;

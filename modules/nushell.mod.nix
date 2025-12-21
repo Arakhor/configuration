@@ -58,10 +58,9 @@
 
       interactiveInitNu = # nu
         pkgs.writeText "interactive.nu" ''
-          ${mkAliases cfg.shellAliases}
-
           ${cfg.interactiveShellInit}
           ${cfg.promptInit}
+          ${mkAliases cfg.shellAliases}
         '';
 
     in

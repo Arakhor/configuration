@@ -1,7 +1,12 @@
 { ghostty, ... }:
 {
   graphical =
-    { pkgs, lib, ... }:
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
     let
       desktopId = "com.mitchellh.ghostty";
       package = pkgs.ghostty;
@@ -36,7 +41,7 @@
         systemd.packages = [ package ];
 
         file.xdg_config."ghostty/config".source = keyValue.generate "ghostty-config" {
-          config-file = "config-dankcolors";
+          config-file = "themes/dankcolors";
 
           font-family = "Monaspace Argon";
           font-family-italic = "Monaspace Radon";

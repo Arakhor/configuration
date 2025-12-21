@@ -9,12 +9,14 @@
     {
       pkgs,
       lib,
+      config,
       homeConfig,
       nixosConfig,
       ...
     }:
     let
       inherit (homeConfig.maid) systemdGraphicalTarget;
+      inherit (nixosConfig.programs.nh) flake;
     in
     {
       nixpkgs.overlays = [
@@ -24,18 +26,69 @@
         })
       ];
 
-      programs.dms-shell = {
-        enable = true;
-      };
+      services.power-profiles-daemon.enable = lib.mkDefault true;
+      services.accounts-daemon.enable = lib.mkDefault true;
 
-      programs.dsearch = {
-        enable = true;
-        systemd.enable = true;
+      home.packages = [
+        pkgs.dgop
+        pkgs.matugen
+        pkgs.cava
+        pkgs.khal
+        pkgs.dms-shell
+        pkgs.dsearch
+        pkgs.quickshell
+      ];
+
+      home.systemd.packages = [ pkgs.dsearch ];
+      home.systemd.services = {
+        dms = {
+          description = "Dank Material Shell (DMS)";
+
+          partOf = [ systemdGraphicalTarget ];
+          requisite = [ systemdGraphicalTarget ];
+          after = [ systemdGraphicalTarget ];
+
+          restartIfChanged = true;
+
+          environment.PATH = lib.mkForce null;
+
+          serviceConfig = {
+            Type = "dbus";
+            BusName = "org.freedesktop.Notifications";
+            ExecStart = "${pkgs.dms-shell}/bin/dms run --session";
+            ExecReload = "${pkgs.procps}/bin/pkill -USR1 -x dms";
+            Restart = "on-failure";
+            RestartSec = 1.23;
+            TimeoutStopSec = 10;
+          };
+
+          wantedBy = [ systemdGraphicalTarget ];
+        };
+
+        dsearch.wantedBy = [ config.home.maid.systemdTarget ];
+
+        dms-link-flake-files = {
+          description = "Link flake dms config";
+          wantedBy = [ "default.target" ];
+          script = ''
+            ln -sf ${flake}/graphical/dms/settings.json ~/.config/DankMaterialShell/settings.json
+            ln -sf ${flake}/graphical/dms/plugin_settings.json ~/.config/DankMaterialShell/plugin_settings.json
+          '';
+        };
+
+        dms-create-niri-files = {
+          description = "Create dms files for niri";
+          wantedBy = [ "default.target" ];
+          script = ''
+            mkdir -p ~/.config/niri/dms
+            touch ~/.config/niri/dms/{colors,layout,alttab,binds,wpblur,outputs}.kdl
+          '';
+        };
       };
 
       services.displayManager.dms-greeter = {
         enable = true;
-        configHome = "/persist/home/arakhor";
+        configHome = "/home/arakhor";
         logs.save = true;
         compositor =
           let
@@ -78,25 +131,6 @@
           };
       };
 
-      services.accounts-daemon.enable = true;
-
-      preserveSystem.directories = [ "/var/lib/dms-greeter" ];
-
-      preserveHome = {
-        files = [
-          ".config/gtk-3.0/dank-colors.css"
-          ".config/gtk-4.0/dank-colors.css"
-
-          ".config/ghostty/config-dankcolors"
-        ];
-        directories = [
-          ".local/state/DankMaterialShell"
-          ".config/niri/dms"
-          ".cache/DankMaterialShell"
-          ".cache/danksearch"
-        ];
-      };
-
       home = {
         file.xdg_config =
           let
@@ -131,67 +165,46 @@
 
             qtconf = ver: ''
               [Appearance]
+              icon_theme=MoreWaita
               custom_palette=true
               color_scheme_path=/home/arakhor/.config/qt${builtins.toString ver}ct/colors/matugen.conf
             '';
           in
           {
-            "DankMaterialShell/settings.json".source = ./settings.json;
-            "DankMaterialShell/plugin_settings.json".source = ./plugin_settings.json;
             "gtk-3.0/gtk.css".text = gtkcss;
             "gtk-4.0/gtk.css".text = gtkcss;
             "qt5ct/qt5ct.conf".text = qtconf 5;
             "qt6ct/qt6ct.conf".text = qtconf 6;
           };
 
-        systemd.services.cliphist = {
-          description = "Clipboard management daemon";
-          partOf = [ systemdGraphicalTarget ];
-          after = [ systemdGraphicalTarget ];
-          script = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --watch ${lib.getExe pkgs.cliphist} store";
-          wantedBy = [ systemdGraphicalTarget ];
-        };
-
-        systemd.services.cliphist-images = {
-          description = "Clipboard management daemon - images";
-          partOf = [ systemdGraphicalTarget ];
-          after = [ systemdGraphicalTarget ];
-          script = "${lib.getExe' pkgs.wl-clipboard "wl-paste"} --type image --watch ${lib.getExe pkgs.cliphist} store";
-          wantedBy = [ systemdGraphicalTarget ];
-        };
-
-        # systemd.services.dms = {
-        #   description = "Dank Material Shell (DMS)";
-
-        #   partOf = [ systemdGraphicalTarget ];
-        #   requisite = [ systemdGraphicalTarget ];
-        #   after = [ systemdGraphicalTarget ];
-
-        #   environment.PATH = lib.mkForce null;
-
-        #   serviceConfig = {
-        #     Type = "simple";
-        #     ExecStart = "${pkgs.dms-shell}/bin/dms run --session";
-        #     ExecReload = "${pkgs.procps}/bin/pkill -USR1 -x dms";
-        #     Restart = "always";
-        #     RestartSec = 2;
-        #     TimeoutStopSec = 10;
-        #   };
-
-        #   wantedBy = [ systemdGraphicalTarget ];
-        # };
-
         programs.niri = {
+          settings.window-rules = [
+            {
+              matches = [ { app-id = "org.quickshell$"; } ];
+              open-floating = true;
+            }
+          ];
           extraConfig = lib.concatLines (
             builtins.map (el: ''include "dms/${el}.kdl"'') [
               "alttab"
               "binds"
               "colors"
               "layout"
+              "outputs"
               "wpblur"
             ]
           );
         };
+      };
+
+      preserveSystem.directories = [ "/var/lib/dms-greeter" ];
+      preserveHome = {
+        directories = [
+          ".local/state/DankMaterialShell"
+          ".config/niri/dms"
+          ".cache/DankMaterialShell"
+          ".cache/danksearch"
+        ];
       };
     };
 }

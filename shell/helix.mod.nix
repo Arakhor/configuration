@@ -132,13 +132,6 @@ inputs: {
       languages = {
         language-server = {
           hx-lsp.command = lib.getExe pkgs.hx-lsp;
-          gpt = {
-            command = lib.getExe pkgs.helix-gpt;
-            args = [
-              "--handler"
-              "copilot"
-            ];
-          };
           nixd = {
             command = lib.getExe pkgs.nixd;
             args = [ "--semantic-tokens=true" ];
@@ -164,7 +157,6 @@ inputs: {
                   (lang.language-servers or [ ])
                   ++ [
                     "hx-lsp"
-                    # "gpt"
                   ]
                 );
                 auto-format = true;
@@ -200,19 +192,9 @@ inputs: {
 
       environment.variables.EDITOR = "hx";
 
-      sops.secrets."copilot-api-key".owner = "arakhor";
-      programs.nushell.shellInit = # nu
-        ''
-          $env.COPILOT_API_KEY = (open ${nixosConfig.sops.secrets."copilot-api-key".path})
-        '';
-
       packages = [
-        pkgs.helix
+        pkgs.wrapped.helix
 
-        pkgs.nixd
-        pkgs.nil
-        pkgs.helix-gpt
-        pkgs.vscode-langservers-extracted
         (
           let
             topiary-nushell = inputs.topiary-nushell;
@@ -245,6 +227,19 @@ inputs: {
       home.file.xdg_config = {
         "helix/config.toml".source = tomlformat.generate "helix-config" settings;
         "helix/languages.toml".source = tomlformat.generate "helix-languages" languages;
+      };
+
+      wrapper-manager.wrappers.helix = {
+        basePackage = pkgs.helix;
+        pathAdd = with pkgs; [
+          nixd
+          nil
+          vscode-langservers-extracted
+        ];
+        prependFlags = [
+          "-c"
+          (tomlformat.generate "helix-config" settings)
+        ];
       };
     };
 }

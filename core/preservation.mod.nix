@@ -6,31 +6,28 @@
       imports = [
         preservation.nixosModules.default
 
-        (lib.mkAliasOptionModule [ "preserveSystem" ] [ "preservation" "preserveAt" "/persist" ])
+        (lib.mkAliasOptionModule [ "preserveSystem" ] [ "preservation" "preserveAt" "/state" ])
 
         (lib.mkAliasOptionModule
           [ "preserveHome" ]
-          [ "preservation" "preserveAt" "/persist" "users" "arakhor" ]
+          [ "preservation" "preserveAt" "/state" "users" "arakhor" ]
         )
       ];
 
       preservation.enable = true;
-      fileSystems."/persist".neededForBoot = true;
+      fileSystems."/state".neededForBoot = true;
       boot.initrd.systemd.enable = true;
 
       preserveSystem = {
         directories = [
+          "/srv"
           "/var/log"
-          "/var/lib/systemd/coredump"
-          "/var/lib/systemd/rfkill"
-          "/var/lib/systemd/timers"
+          "/var/tmp"
+          "/var/lib/systemd"
+          "/var/db/sudo/lectured"
           {
             directory = "/var/lib/nixos";
             inInitrd = true;
-          }
-          {
-            directory = "/var/lib/private";
-            mode = "0700";
           }
         ];
 

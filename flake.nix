@@ -9,9 +9,6 @@
     wrapper-manager.url = "github:viperML/wrapper-manager";
     preservation.url = "github:nix-community/preservation";
 
-    sops-nix.url = "github:Mic92/sops-nix";
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -65,19 +62,25 @@
     let
       inputs = builtins.mapAttrs (
         input-name: raw-input:
-        builtins.foldl' (
-          input: module-class:
-          if input ? ${module-class} then
-            input
-            // {
-              ${module-class} = builtins.mapAttrs (
-                module-name:
-                raw-inputs.nixpkgs.lib.setDefaultModuleLocation "${input-name}.${module-class}.${module-name}"
-              ) input.${module-class};
-            }
-          else
-            input
-        ) raw-input [ "nixosModules" ]
+        builtins.foldl'
+          (
+            input: module-class:
+            if input ? ${module-class} then
+              input
+              // {
+                ${module-class} = builtins.mapAttrs (
+                  module-name:
+                  raw-inputs.nixpkgs.lib.setDefaultModuleLocation "${input-name}.${module-class}.${module-name}"
+                ) input.${module-class};
+              }
+            else
+              input
+          )
+          raw-input
+          [
+            "nixosModules"
+            "maid"
+          ]
       ) raw-inputs;
     in
     let

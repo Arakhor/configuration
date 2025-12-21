@@ -13,6 +13,8 @@
       video = "mpv.desktop";
       image = "swayimg.desktop";
       editor = "helix.desktop";
+      fileManager = "org.gnome.Nautilus.desktop";
+      terminal = "com.mitchellh.ghostty.desktop";
 
       associations = {
         # --- Browsing ---
@@ -40,9 +42,16 @@
         "application/x-cbr" = pdfreader;
 
         # --- Directories ---
-        "inode/directory" = "kitty-open.desktop"; # Provided by custom desktop item or we need to ensure it exists?
-        # kitty-open is likely a custom desktop file. We might need to migrate it if it was previously managed.
-        # For now, let's assume it exists or fallback to kitty.desktop.
+        "inode/directory" = fileManager;
+
+        # --- Archives ---
+        "application/zip" = fileManager;
+        "application/x-tar" = fileManager;
+        "application/gzip" = fileManager;
+        "application/x-bzip2" = fileManager;
+        "application/x-7z-compressed" = fileManager;
+        "application/x-rar" = fileManager;
+        "application/x-xz" = fileManager;
 
         # --- Playlists ---
         "audio/x-mpegurl" = video;
@@ -51,15 +60,6 @@
 
         # --- Misc ---
         "x-scheme-handler/magnet" = torrent;
-
-        # --- Archives ---
-        "application/zip" = editor;
-        "application/x-tar" = editor;
-        "application/gzip" = editor;
-        "application/x-bzip2" = editor;
-        "application/x-7z-compressed" = editor;
-        "application/x-rar" = editor;
-        "application/x-xz" = editor;
 
         # --- Editing (Text/Code) ---
         "text/plain" = editor;
@@ -112,22 +112,24 @@
       };
 
       # User Dirs
-      userDirs = ''
-        XDG_DESKTOP_DIR="$HOME/.local/desktop"
-        XDG_DOCUMENTS_DIR="$HOME/documents"
-        XDG_DOWNLOAD_DIR="$HOME/downloads"
-        XDG_MUSIC_DIR="$HOME/music"
-        XDG_PICTURES_DIR="$HOME/pictures"
-        XDG_PUBLICSHARE_DIR="$HOME/.local/public"
-        XDG_TEMPLATES_DIR="$HOME/.local/templates"
-        XDG_VIDEOS_DIR="$HOME/videos"
-      '';
+      userDirs = lib.toShellVars {
+        XDG_DOCUMENTS_DIR = "\{$HOME}/documents";
+        XDG_DOWNLOAD_DIR = "\{$HOME}/downloads";
+        XDG_MUSIC_DIR = "\{$HOME}/music";
+        XDG_PICTURES_DIR = "\{$HOME}/pictures";
+        XDG_SCREENSHOTS_DIR = "\{$HOME}/pictures/screenshots";
+        XDG_VIDEOS_DIR = "\{$HOME}/videos";
+        XDG_DESKTOP_DIR = "\{$HOME}/.local/desktop";
+        XDG_PUBLICSHARE_DIR = "\{$HOME}/.local/public";
+        XDG_TEMPLATES_DIR = "\{$HOME}/.local/templates";
+      };
     in
     {
       # 1. Config Files
       home.file.xdg_config = {
         "mimeapps.list".text = mimeAppsList;
         "user-dirs.dirs".text = userDirs;
+        "xdg-terminals.list".text = terminal;
       };
 
       # 2. Activation: Create Directories
@@ -139,23 +141,26 @@
           Type = "oneshot";
           ExecStart = toString (
             pkgs.writeShellScript "create-xdg-dirs" ''
-              mkdir -p $HOME/.local/desktop
-              mkdir -p $HOME/development
               mkdir -p $HOME/documents
               mkdir -p $HOME/downloads
               mkdir -p $HOME/music
               mkdir -p $HOME/pictures
+              mkdir -p $HOME/pictures/screenshots
+              mkdir -p $HOME/videos
+              mkdir -p $HOME/.local/desktop
               mkdir -p $HOME/.local/public
               mkdir -p $HOME/.local/templates
-              mkdir -p $HOME/videos
-              mkdir -p $HOME/.local/bin
             ''
           );
         };
       };
 
+      home.packages = with pkgs; [
+        xdg-utils
+        xdg-terminal-exec
+      ];
+
       preserveHome.directories = [
-        "development"
         "documents"
         "downloads"
         "music"

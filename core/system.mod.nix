@@ -8,6 +8,8 @@
       boot.kernelPackages = pkgs.linuxPackages_latest;
       nixpkgs.config.allowUnfree = true;
 
+      boot.supportedFilesystems = [ "ntfs" ];
+
       programs.nix-ld.enable = true;
 
       zramSwap = {
