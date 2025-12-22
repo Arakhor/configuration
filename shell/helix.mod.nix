@@ -194,34 +194,6 @@ inputs: {
 
       packages = [
         pkgs.wrapped.helix
-
-        (
-          let
-            topiary-nushell = inputs.topiary-nushell;
-            tree-sitter-nu = inputs.nushell-nightly.packages.${pkgs.stdenv.hostPlatform.system}.tree-sitter-nu;
-          in
-          pkgs.mkWrapper {
-            basePackage = pkgs.topiary;
-            prependFlags = [ "--merge-configuration" ];
-            env = {
-              TOPIARY_CONFIG_FILE.value =
-                pkgs.writeText "languages.ncl"
-                  # nickel
-                  ''
-                    {
-                      languages = {
-                        nu = {
-                          indent = "    ", # 4 spaces
-                          extensions = ["nu"],
-                          grammar.source.path = "${tree-sitter-nu}/parser"
-                        },
-                      },
-                    }
-                  '';
-              TOPIARY_LANGUAGE_DIR.value = "${topiary-nushell}/languages";
-            };
-          }
-        )
       ];
 
       home.file.xdg_config = {
@@ -235,6 +207,7 @@ inputs: {
           nixd
           nil
           vscode-langservers-extracted
+          inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.topiary-nu
         ];
         prependFlags = [
           "-c"
