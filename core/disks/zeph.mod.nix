@@ -5,9 +5,12 @@
       hostname = "zeph";
     in
     {
-      disk = lib.genAttrs [ "0" "1" ] (i: {
+      # Devices will be mounted and formatted in alphabetical order, and btrfs can only mount raids
+      # when all devices are present. So we define an "empty" luks device on the first disk,
+      # and the actual btrfs raid on the second disk, and the name of these entries matters!
+      disk.disk1 = {
         type = "disk";
-        device = "/dev/nvme${i}n1";
+        device = "/dev/sda";
         content = {
           type = "gpt";
           partitions = {
@@ -15,106 +18,84 @@
               size = "1G";
               type = "EF00";
               content = {
-                type = "mdraid";
-                name = "boot";
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
               };
             };
-
-            mdadm = {
+            swap = {
+              size = "96G";
+              label = "swap";
+              content = {
+                type = "swap";
+                resumeDevice = true; # allow hibernation
+              };
+            };
+            crypt_p1 = {
               size = "100%";
               content = {
-                type = "mdraid";
-                name = "raid1";
+                type = "luks";
+                name = "p1"; # device-mapper name when decrypted
+                settings = {
+                  allowDiscards = true;
+                };
               };
             };
           };
         };
-      });
-
-      mdadm = {
-        boot = {
-          type = "mdadm";
-          level = 1;
-          metadata = "1.0";
-          content = {
-            type = "filesystem";
-            format = "vfat";
-            mountpoint = "/boot";
-            mountOptions = [ "umask=0077" ];
-          };
-        };
-
-        raid1 = {
-          type = "mdadm";
-          level = 1;
-          content = {
-            type = "luks";
-            name = "${hostname}-crypted";
-
-            askPassword = true;
-            settings = {
-              allowDiscards = true;
-              bypassWorkqueues = true;
-              crypttabExtraOpts = [
-                "tries=5"
-                "tpm2-measure-pcr=yes"
-                "tpm2-pin=yes"
-                "tpm2-device=auto"
-              ];
-            };
-
-            extraFormatArgs = [
-              "--type=luks2"
-              "--use-random"
-            ];
-
-            content = {
-              type = "lvm_pv";
-              vg = "${hostname}-nixos";
-            };
-          };
-        };
       };
 
-      lvm_vg."${hostname}-nixos" = {
-        type = "lvm_vg";
-        lvs = {
-          swap = {
-            size = "96G";
-            content = {
-              type = "swap";
-              resumeDevice = true;
-            };
-          };
-
-          nix = {
-            size = "200G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/nix";
-              mountOptions = [ "noatime" ];
-            };
-          };
-
-          state = {
-            size = "100%";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/state";
-              mountOptions = [ "noatime" ];
+      disk.disk2 = {
+        type = "disk";
+        device = "/dev/sdb";
+        content = {
+          type = "gpt";
+          partitions = {
+            crypt_p2 = {
+              size = "100%";
+              content = {
+                type = "luks";
+                name = "p2";
+                settings = {
+                  allowDiscards = true;
+                };
+                content = {
+                  type = "btrfs";
+                  extraArgs = [
+                    "-d raid1"
+                    "/dev/mapper/p1" # Use decrypted mapped device, same name as defined in disk1
+                  ];
+                  subvolumes = {
+                    "@nix" = {
+                      mountpoint = "/nix";
+                      mountOptions = [
+                        "noatime"
+                        "compress=zstd"
+                      ];
+                    };
+                    "@state" = {
+                      mountpoint = "/state";
+                      mountOptions = [
+                        "noatime"
+                        "compress=zstd"
+                      ];
+                    };
+                  };
+                };
+              };
             };
           };
         };
-      };
-
-      nodev."/" = {
-        fsType = "tmpfs";
-        mountOptions = [
-          "mode=755"
-          "size=48g"
-        ];
       };
     };
+
+  nodev."/" = {
+    fsType = "tmpfs";
+    mountOptions = [
+      "defaults"
+      "mode=755"
+      "size=32g"
+    ];
+  };
 }
