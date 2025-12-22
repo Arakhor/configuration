@@ -7,7 +7,7 @@ in
     {
       disk = lib.genAttrs [ "0" "1" ] (i: {
         type = "disk";
-        device = "/dev/nvme${i}";
+        device = "/dev/nvme${i}n1";
         content = {
           type = "gpt";
           partitions = {
