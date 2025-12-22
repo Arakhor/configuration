@@ -35,7 +35,6 @@
 
   zeph = {
     networking.hostName = "zeph";
-    networking.hostId = "74ae3a07";
     facter.reportPath = ./hardware-scans/zeph.json;
   };
 }
