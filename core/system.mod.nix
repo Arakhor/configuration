@@ -5,19 +5,10 @@
       imports = [ (lib.mkAliasOptionModule [ "packages" ] [ "environment" "systemPackages" ]) ];
 
       system.stateVersion = "25.11";
-      boot.kernelPackages = pkgs.linuxPackages_latest;
+      boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
       nixpkgs.config.allowUnfree = true;
 
-      boot.supportedFilesystems = [ "ntfs" ];
-
       programs.nix-ld.enable = true;
-
-      zramSwap = {
-        enable = lib.mkDefault true;
-        priority = lib.mkDefault 100;
-        memoryPercent = lib.mkDefault 50;
-        algorithm = lib.mkDefault "zstd";
-      };
 
       services.earlyoom = {
         enable = lib.mkDefault true;

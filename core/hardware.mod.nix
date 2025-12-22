@@ -31,6 +31,13 @@
         percentageCritical = 5;
         percentageAction = 3;
       };
+
+      zramSwap = {
+        enable = lib.mkDefault true;
+        priority = lib.mkDefault 100;
+        memoryPercent = lib.mkDefault 50;
+        algorithm = lib.mkDefault "zstd";
+      };
     };
 
   xps = {
@@ -51,9 +58,9 @@
       networking.hostName = "zeph";
       facter.reportPath = ./hardware-scans/zeph.json;
 
-      boot.kernelPackages =
-        lib.mkForce
-          kernel-overlay.packages.${pkgs.stdenv.buildPlatform.system}.linuxPackages_mainline;
+      # boot.kernelPackages =
+      #   lib.mkForce
+      #     kernel-overlay.packages.${pkgs.stdenv.buildPlatform.system}.linuxPackages_mainline;
 
       boot.initrd.kernelModules = lib.mkBefore [ "amdgpu" ];
 
@@ -63,7 +70,17 @@
       ];
 
       hardware.nvidia = {
-        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        # Use custom nvidia version
+        package = lib.mkForce (
+          config.boot.kernelPackages.nvidiaPackages.mkDriver {
+            version = "580.105.08";
+            sha256_64bit = "sha256-2cboGIZy8+t03QTPpp3VhHn6HQFiyMKMjRdiV2MpNHU=";
+            openSha256 = "sha256-FGmMt3ShQrw4q6wsk8DSvm96ie5yELoDFYinSlGZcwQ=";
+            settingsSha256 = "sha256-YvzWO1U3am4Nt5cQ+b5IJ23yeWx5ud1HCu1U0KoojLY=";
+            persistencedSha256 = lib.fakeSha256;
+          }
+        );
+        # package = config.boot.kernelPackages.nvidiaPackages.stable;
         open = true;
         nvidiaSettings = false; # does not work on wayland
         powerManagement.enable = true;
@@ -86,9 +103,9 @@
         enable = true;
         enableUserService = true;
       };
+      services.supergfxd.enable = true;
 
       home.packages = [
-
         pkgs.amdgpu_top
         (lib.hiPrio (
           pkgs.runCommand "amdgpu_top-desktop-rename" { } ''
