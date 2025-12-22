@@ -12,9 +12,6 @@
       trusted-public-keys = [
         "kernel-overlay.cachix.org-1:rUvSa2sHn0a7RmwJDqZvijlzZHKeGvmTQfOUr2kaxr4="
       ];
-      nixpkgs.overlays = [
-        kernel-overlay.overlays.default
-      ];
 
       imports = [
         disko.nixosModules.disko
@@ -52,7 +49,8 @@
       networking.hostName = "zeph";
       facter.reportPath = ./hardware-scans/zeph.json;
 
-      boot.kernelPackages = pkgs.linuxPackages_testing;
+      boot.kernelPackages =
+        kernel-overlay.packages.${pkgs.stdenv.buildPlatform.system}.linuxPackages_testing;
 
       boot.initrd.kernelModules = lib.mkBefore [ "amdgpu" ];
 
