@@ -5,12 +5,9 @@
       hostname = "zeph";
     in
     {
-      # Devices will be mounted and formatted in alphabetical order, and btrfs can only mount raids
-      # when all devices are present. So we define an "empty" luks device on the first disk,
-      # and the actual btrfs raid on the second disk, and the name of these entries matters!
       disk.disk1 = {
         type = "disk";
-        device = "/dev/sda";
+        device = "/dev/nvme0n1";
         content = {
           type = "gpt";
           partitions = {
@@ -40,7 +37,7 @@
 
       disk.disk2 = {
         type = "disk";
-        device = "/dev/sdb";
+        device = "/dev/nvme1n1";
         content = {
           type = "gpt";
           partitions = {
