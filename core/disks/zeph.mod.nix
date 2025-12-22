@@ -24,14 +24,6 @@
                 mountOptions = [ "umask=0077" ];
               };
             };
-            swap = {
-              size = "96G";
-              label = "swap";
-              content = {
-                type = "swap";
-                resumeDevice = true; # allow hibernation
-              };
-            };
             crypt_p1 = {
               size = "100%";
               content = {
