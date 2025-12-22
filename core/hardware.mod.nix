@@ -29,12 +29,13 @@
     networking.hostName = "xps";
     facter.reportPath = ./hardware-scans/xps.json;
     services.fstrim.enable = true;
-    # Make hibernation images as small as possible
     systemd.tmpfiles.rules = [ "w /sys/power/image_size - - - - 0" ];
   };
 
   zeph = {
     networking.hostName = "zeph";
     facter.reportPath = ./hardware-scans/zeph.json;
+    services.fstrim.enable = true;
+    systemd.tmpfiles.rules = [ "w /sys/power/image_size - - - - 0" ];
   };
 }
