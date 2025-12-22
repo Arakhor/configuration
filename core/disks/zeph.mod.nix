@@ -1,137 +1,53 @@
 let
   username = "arakhor";
+  hostname = "zeph";
+  poolName = "${hostname}-zpool";
+  pseudoRoot = "${hostname}-nixos";
 in
 {
   zeph.disko.devices = {
     disk = {
-      nvme0 = {
+      "2TB-NVME-0" = {
         type = "disk";
-        device = "/dev/nvme0n1";
+        device = "/dev/nvme0";
         content = {
           type = "gpt";
           partitions = {
             esp = {
-              size = "1G";
+              name = "boot";
+              size = "1024M";
               type = "EF00";
               content = {
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
-                mountOptions = [ "umask=0077" ];
+                mountOptions = [
+                  "defaults"
+                  "umask=0077"
+                ];
               };
             };
-
-            raid = {
+            zfs = {
               size = "100%";
               content = {
-                type = "mdraid";
-                name = "md0";
+                type = "zfs";
+                pool = poolName;
               };
             };
           };
         };
       };
 
-      nvme1 = {
+      "2TB-NVME-1" = {
         type = "disk";
-        device = "/dev/nvme1n1";
+        device = "/dev/nvme1";
         content = {
           type = "gpt";
-          partitions.raid = {
+          partitions.zfs = {
             size = "100%";
             content = {
-              type = "mdraid";
-              name = "md0";
-            };
-          };
-
-        };
-      };
-    };
-
-    mdadm.md0 = {
-      type = "mdadm";
-      level = 1;
-      metadata = "1.2";
-      content = {
-        type = "gpt";
-        partitions = {
-          swap = {
-            size = "80G"; # hibernation-safe for 64GB RAM
-            content = {
-              type = "luks";
-              name = "cryptswap";
-              settings.allowDiscards = true;
-              content = {
-                type = "swap";
-                resumeDevice = true;
-              };
-            };
-          };
-
-          root = {
-            size = "100%";
-            content = {
-              type = "luks";
-              name = "cryptstate";
-              settings.allowDiscards = true;
-              content = {
-                type = "btrfs";
-                extraArgs = [
-                  "-L"
-                  "state"
-                  "-m"
-                  "single"
-                  "-d"
-                  "single"
-                ];
-                subvolumes = {
-                  "@nix" = {
-                    mountpoint = "/nix";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                  };
-
-                  "@state" = {
-                    mountpoint = "/state";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                      "commit=120"
-                    ];
-                  };
-
-                  "@state-steam" = {
-                    mountpoint = "/state/home/${username}/.local/share/Steam";
-                  };
-
-                  "@state-games" = {
-                    mountpoint = "/state/home/${username}/games";
-                  };
-
-                  "@state-videos" = {
-                    mountpoint = "/state/home/${username}/videos";
-                  };
-
-                  "@state-music" = {
-                    mountpoint = "/state/home/${username}/music";
-                  };
-
-                  "@state-pictures" = {
-                    mountpoint = "/state/home/${username}/pictures";
-                  };
-
-                  "@state-downloads" = {
-                    mountpoint = "/state/home/${username}/downloads";
-                  };
-
-                  "@state-models" = {
-                    mountpoint = "/state/var/lib/private/ollama";
-                  };
-                };
-              };
+              type = "zfs";
+              pool = "${poolName}-1";
             };
           };
         };
@@ -141,9 +57,116 @@ in
     nodev."/" = {
       fsType = "tmpfs";
       mountOptions = [
+        "defaults"
         "mode=755"
-        "size=16G"
       ];
     };
+
+    zpool =
+      let
+        rootFsOptions = {
+          atime = "off";
+          mountpoint = "none";
+          xattr = "sa";
+          acltype = "posixacl";
+          compression = "lz4";
+        };
+      in
+      {
+        ${poolName} = {
+          type = "zpool";
+          options.ashift = "12";
+          inherit rootFsOptions;
+
+          datasets = {
+            ${pseudoRoot}.type = "zfs_fs";
+
+            "${pseudoRoot}/nix" = {
+              type = "zfs_fs";
+              mountpoint = "/nix";
+              options.mountpoint = "legacy";
+            };
+
+            "${pseudoRoot}/state" = {
+              type = "zfs_fs";
+              options = {
+                encryption = "aes-256-gcm";
+                keyformat = "passphrase";
+                keylocation = "prompt";
+              };
+            };
+
+            "${pseudoRoot}/state/steam" = {
+              type = "zfs_fs";
+              mountpoint = "/state/home/${username}/.local/share/Steam";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+
+            "${pseudoRoot}/state/games" = {
+              type = "zfs_fs";
+              mountpoint = "/state/home/${username}/games";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+
+            "${pseudoRoot}/state/models" = {
+              type = "zfs_fs";
+              mountpoint = "/state/var/lib/private/ollama";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+          };
+        };
+
+        "${poolName}-1" = {
+          type = "zpool";
+          options.ashift = "12";
+          inherit rootFsOptions;
+
+          datasets = {
+            ${pseudoRoot}.type = "zfs_fs";
+
+            "${pseudoRoot}/state" = {
+              type = "zfs_fs";
+              mountpoint = "/state";
+              options = {
+                mountpoint = "legacy";
+                encryption = "aes-256-gcm";
+                keyformat = "passphrase";
+                keylocation = "prompt";
+              };
+            };
+
+            "${pseudoRoot}/state/videos" = {
+              type = "zfs_fs";
+              mountpoint = "/state/home/${username}/videos";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+
+            "${pseudoRoot}/state/pictures" = {
+              type = "zfs_fs";
+              mountpoint = "/state/home/${username}/pictures";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+
+            "${pseudoRoot}/state/music" = {
+              type = "zfs_fs";
+              mountpoint = "/state/home/${username}/music";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+
+            "${pseudoRoot}/state/downloads" = {
+              type = "zfs_fs";
+              mountpoint = "/state/home/${username}/downloads";
+              options.mountpoint = "legacy";
+              options.recordsize = "1M";
+            };
+          };
+        };
+      };
   };
 }

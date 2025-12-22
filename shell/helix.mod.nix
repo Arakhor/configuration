@@ -229,7 +229,7 @@ inputs: {
         "helix/languages.toml".source = tomlformat.generate "helix-languages" languages;
       };
 
-      wrapperManager.wrappers.helix = {
+      wrappers.helix = {
         basePackage = pkgs.helix;
         pathAdd = with pkgs; [
           nixd

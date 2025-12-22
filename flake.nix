@@ -151,6 +151,30 @@
         formatting = treefmtEval.${system}.config.build.check self;
       });
 
+      packages = forAllSystems (system: {
+        topiary-nu = inputs.wrapper-manager.lib.wrapWith nixpkgs.legacyPackages.${system} {
+          basePackage = nixpkgs.legacyPackages.${system}.topiary;
+          prependFlags = [ "--merge-configuration" ];
+          env = {
+            TOPIARY_CONFIG_FILE.value =
+              nixpkgs.legacyPackages.${system}.writeText "languages.ncl"
+                # nickel
+                ''
+                  {
+                    languages = {
+                      nu = {
+                        indent = "    ", # 4 spaces
+                        extensions = ["nu"],
+                        grammar.source.path = "${inputs.nushell-nightly.packages.${system}.tree-sitter-nu}/parser"
+                      },
+                    },
+                  }
+                '';
+            TOPIARY_LANGUAGE_DIR.value = "${inputs.topiary-nushell}/languages";
+          };
+        };
+      });
+
       nixosConfigurations = configs;
     };
 }

@@ -73,13 +73,13 @@
 
       users.users.arakhor.shell = nixosConfig.programs.nushell.finalPackage;
 
-      wrapperManager.wrappers.nushell.pathAdd = with pkgs; [
+      wrappers.nushell.pathAdd = with pkgs; [
         zoxide
         yazi
 
-        wrapped.helix
-        wrapped.carapace
-        wrapped.starship
+        config.wrappers.helix.wrapped
+        config.wrappers.carapace.wrapped
+        config.wrappers.starship.wrapped
       ];
 
       programs.nushell = rec {

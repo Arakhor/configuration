@@ -29,7 +29,7 @@
       initOption = if cfg.interactiveOnly then "promptInit" else "shellInit";
     in
     {
-      wrapperManager.wrappers.starship = {
+      wrappers.starship = {
         basePackage = pkgs.starship;
         env.STARSHIP_CONFIG.value = (
           (pkgs.formats.toml { }).generate "starship.toml" config.programs.starship.settings

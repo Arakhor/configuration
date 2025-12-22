@@ -177,7 +177,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        wrapperManager.wrappers.nushell = {
+        wrappers.nushell = {
           basePackage = cfg.package;
           pathAdd = cfg.plugins;
           env.NU_EXPERIMENTAL_OPTIONS.value = (lib.concatStringsSep "," cfg.experimentalOptions);

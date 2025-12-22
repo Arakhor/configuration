@@ -4,7 +4,7 @@
     {
       environment.pathsToLink = [ "/share/fish/vendor_completions.d" ];
 
-      wrapperManager.wrappers.carapace = {
+      wrappers.carapace = {
         basePackage = pkgs.carapace;
         pathAdd = [ pkgs.fish ];
         env =
