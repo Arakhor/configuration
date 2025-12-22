@@ -52,7 +52,8 @@
       facter.reportPath = ./hardware-scans/zeph.json;
 
       boot.kernelPackages =
-        kernel-overlay.packages.${pkgs.stdenv.buildPlatform.system}.linuxPackages_mainline;
+        lib.mkForce
+          kernel-overlay.packages.${pkgs.stdenv.buildPlatform.system}.linuxPackages_mainline;
 
       boot.initrd.kernelModules = lib.mkBefore [ "amdgpu" ];
 
