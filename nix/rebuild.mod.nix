@@ -1,10 +1,12 @@
 inputs: {
   universal =
     { lib, nixosConfig, ... }:
+    let
+      configDir = "/home/arakhor/configuration";
+    in
     {
-
       programs.nh.enable = true;
-      programs.nh.flake = "/home/arakhor/configuration";
+      programs.nh.flake = configDir;
       preserveHome.directories = [ "configuration" ];
 
       # Include flake git rev in system label
@@ -19,11 +21,6 @@ inputs: {
         current-rev.text = "${inputs.self.sourceInfo.rev or "dirty"}";
       };
 
-      programs.nushell.shellAliases = {
-        nx = "nh os switch --accept-flake-config --show-trace";
-        ns = "nh search";
-      };
-
       # Sometimes nixos-rebuild compiles large pieces software that require more
       # space in /tmp than my tmpfs can provide. The obvious solution is to mount
       # /tmp to some actual storage. However, the majority of my rebuilds do not
@@ -36,10 +33,27 @@ inputs: {
 
       # List of programs that require the bind mount to compile:
       # - mongodb
-      nix.settings.build-dir = "/var/nix-tmp";
-      systemd.tmpfiles.rules = [
+      nix.settings.build-dir = lib.mkIf nixosConfig.preservation.enable "/var/nix-tmp";
+      systemd.tmpfiles.rules = lib.mkIf nixosConfig.preservation.enable [
         "d /var/nix-tmp 0755 root root - -"
         "d /persist/var/nix-tmp 0755 root root - -"
       ];
+
+      programs.nushell = {
+        interactiveShellInit = # nu
+          ''
+            inspect-host [host] {
+              nixos-rebuild repl --flake $"${configDir}#($host)"
+            }
+            build-package [path] {
+              NIXPKGS_ALLOW_UNFREE=1 nix build --impure --expr $"with import <nixpkgs> {}; pkgs.callPackage ($path) {}"
+            }
+          '';
+        shellAliases = {
+          mount-nix-tmp = lib.mkIf nixosConfig.preservation.enable "sudo mount --bind /state/var/nix-tmp /var/nix-tmp";
+          system-size = "nix path-info --closure-size --human-readable /run/current-system";
+        };
+      };
+
     };
 }

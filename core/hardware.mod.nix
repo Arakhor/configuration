@@ -8,13 +8,6 @@
   universal =
     { config, lib, ... }:
     {
-      nix.settings = {
-        substituters = [ "https://kernel-overlay.cachix.org" ];
-        trusted-public-keys = [
-          "kernel-overlay.cachix.org-1:rUvSa2sHn0a7RmwJDqZvijlzZHKeGvmTQfOUr2kaxr4="
-        ];
-      };
-
       imports = [
         disko.nixosModules.disko
         nixos-facter-modules.nixosModules.facter
@@ -58,10 +51,6 @@
       networking.hostName = "zeph";
       facter.reportPath = ./hardware-scans/zeph.json;
 
-      # boot.kernelPackages =
-      #   lib.mkForce
-      #     kernel-overlay.packages.${pkgs.stdenv.buildPlatform.system}.linuxPackages_mainline;
-
       boot.initrd.kernelModules = lib.mkBefore [ "amdgpu" ];
 
       services.xserver.videoDrivers = [
@@ -104,6 +93,7 @@
         enableUserService = true;
       };
       services.supergfxd.enable = true;
+      services.switcherooControl.enable = true;
 
       home.packages = [
         pkgs.amdgpu_top
@@ -118,7 +108,12 @@
 
       environment.sessionVariables.AMD_VULKAN_ICD = "RADV";
 
+      preserveSystem.files = [
+        "/etc/supergfxd.conf"
+      ];
+
       preserveHome.directories = [
+        ".config/rog"
         ".cache/nvidia"
         ".cache/AMD"
       ];
