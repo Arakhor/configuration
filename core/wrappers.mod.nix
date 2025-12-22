@@ -22,24 +22,8 @@
         };
 
         nixpkgs.overlays = [
-          (final: prev: {
+          (_: _: {
             wrapped = config.system.build.wrapper-manager.packages;
-            mkWrapper =
-              module:
-              let
-                finalModule =
-                  if builtins.isAttrs module then
-                    (
-                      {
-                        # show the actual file that defines the wrapper in case of error
-                        _file = (builtins.unsafeGetAttrPos "basePackage" module).file;
-                      }
-                      // module
-                    )
-                  else
-                    module;
-              in
-              wrapper-manager.lib.wrapWith final finalModule;
           })
         ];
       };

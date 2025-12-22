@@ -11,12 +11,12 @@
         content = {
           type = "gpt";
           partitions = {
-            boot = {
+            ESP = {
               size = "1G";
               type = "EF00";
               content = {
                 type = "mdraid";
-                name = "esp";
+                name = "boot";
               };
             };
 
@@ -24,7 +24,7 @@
               size = "100%";
               content = {
                 type = "mdraid";
-                name = "luks";
+                name = "raid1";
               };
             };
           };
@@ -32,7 +32,7 @@
       });
 
       mdadm = {
-        esp = {
+        boot = {
           type = "mdadm";
           level = 1;
           metadata = "1.0";
@@ -44,7 +44,7 @@
           };
         };
 
-        luks = {
+        raid1 = {
           type = "mdadm";
           level = 1;
           content = {
