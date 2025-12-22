@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    kernel-overlay.url = "github:andreoss/kernel-overlay";
 
     # EXTENSIONS:
     nix-maid.url = "github:viperML/nix-maid";

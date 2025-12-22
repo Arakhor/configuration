@@ -71,7 +71,7 @@
                   ];
                 };
                 "@state" = {
-                  mountpoint = "/persist";
+                  mountpoint = "/state";
                   mountOptions = [
                     "subvol=state"
                     "compress=zstd"

@@ -271,7 +271,7 @@
 
         shellInit = # nu
           ''
-            source /home/arakhor/configuration/shell/theme.nu
+            source ${./.}/theme.nu
             # Setup completions on non-interactive shells for use with nu-lsp
             def nix-completer [spans: list<string>] {
               let current_arg = $spans | length| $in - 1
