@@ -1,12 +1,21 @@
 {
   zeph.disko.devices = {
-    disk.disk1 = {
+    nodev."/" = {
+      fsType = "tmpfs";
+      mountOptions = [
+        "defaults"
+        "size=128M"
+        "mode=0755"
+      ];
+    };
+    disk.nvme0n1 = {
       type = "disk";
       device = "/dev/nvme0n1";
       content = {
         type = "gpt";
         partitions = {
           ESP = {
+            label = "boot";
             size = "1G";
             type = "EF00";
             content = {
@@ -16,55 +25,59 @@
               mountOptions = [ "umask=0077" ];
             };
           };
-          crypt_p1 = {
-            size = "100%";
+          swap = {
+            size = "96G";
+            label = "swap";
             content = {
-              type = "luks";
-              name = "p1"; # device-mapper name when decrypted
-              settings = {
-                allowDiscards = true;
-              };
+              type = "swap";
+              resumeDevice = true; # allow hibernation
             };
+          };
+          raid = {
+            size = "100%";
+            label = "raid0";
           };
         };
       };
     };
-
-    disk.disk2 = {
+    disk.nvme1n1 = {
       type = "disk";
       device = "/dev/nvme1n1";
       content = {
         type = "gpt";
         partitions = {
-          crypt_p2 = {
+          raid = {
             size = "100%";
+            label = "raid1";
             content = {
-              type = "luks";
-              name = "p2";
-              settings = {
-                allowDiscards = true;
-              };
-              content = {
-                type = "btrfs";
-                extraArgs = [
-                  "-d raid1"
-                  "/dev/mapper/p1" # Use decrypted mapped device, same name as defined in disk1
-                ];
-                subvolumes = {
-                  "@nix" = {
-                    mountpoint = "/nix";
-                    mountOptions = [
-                      "noatime"
-                      "compress=zstd"
-                    ];
-                  };
-                  "@state" = {
-                    mountpoint = "/state";
-                    mountOptions = [
-                      "noatime"
-                      "compress=zstd"
-                    ];
-                  };
+              type = "btrfs";
+              extraArgs = [
+                "-d"
+                "raid0"
+                "/dev/disk/by-partlabel/raid0"
+                "/dev/disk/by-partlabel/raid1"
+                "-L"
+                "nixos"
+                "-f"
+              ];
+              subvolumes = {
+                "@nix" = {
+                  mountpoint = "/nix";
+                  mountOptions = [
+                    "subvol=nix"
+                    "compress=zstd:1"
+                    "noatime"
+                    "ssd"
+                  ];
+                };
+                "@state" = {
+                  mountpoint = "/persist";
+                  mountOptions = [
+                    "subvol=state"
+                    "compress=zstd"
+                    "noatime"
+                    "ssd"
+                  ];
                 };
               };
             };
@@ -73,13 +86,5 @@
       };
     };
 
-    nodev."/" = {
-      fsType = "tmpfs";
-      mountOptions = [
-        "defaults"
-        "mode=755"
-        "size=32g"
-      ];
-    };
   };
 }
