@@ -47,7 +47,6 @@
         luks = {
           type = "mdadm";
           level = 1;
-          metadata = "1.2";
           content = {
             type = "luks";
             name = "${hostname}-crypted";
