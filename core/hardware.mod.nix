@@ -8,10 +8,12 @@
   universal =
     { config, lib, ... }:
     {
-      substituters = [ "https://kernel-overlay.cachix.org" ];
-      trusted-public-keys = [
-        "kernel-overlay.cachix.org-1:rUvSa2sHn0a7RmwJDqZvijlzZHKeGvmTQfOUr2kaxr4="
-      ];
+      nix.settings = {
+        substituters = [ "https://kernel-overlay.cachix.org" ];
+        trusted-public-keys = [
+          "kernel-overlay.cachix.org-1:rUvSa2sHn0a7RmwJDqZvijlzZHKeGvmTQfOUr2kaxr4="
+        ];
+      };
 
       imports = [
         disko.nixosModules.disko
