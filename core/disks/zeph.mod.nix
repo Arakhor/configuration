@@ -20,11 +20,11 @@
               };
             };
 
-            primary = {
+            mdadm = {
               size = "100%";
               content = {
-                type = "lvm_pv";
-                vg = "pool";
+                type = "mdraid";
+                name = "raid1";
               };
             };
           };
