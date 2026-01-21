@@ -1,0 +1,37 @@
+{
+  "pins": {
+    "zellij-autolock": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "fresh2dev",
+        "repo": "zellij-autolock"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "0.2.2",
+      "revision": "5346d7f45e5a54e1d906aba43ed1c063987aa135",
+      "url": "https://api.github.com/repos/fresh2dev/zellij-autolock/tarball/refs/tags/0.2.2",
+      "hash": "sha256-uU7wWSdOhRLQN6cG4NvA9yASlvRwB6gggX89B5K9dyQ="
+    },
+    "zjstatus": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "dj95",
+        "repo": "zjstatus"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v0.22.0",
+      "revision": "bc53bbba4031725a1883ef1218a3d9cc960913b5",
+      "url": "https://api.github.com/repos/dj95/zjstatus/tarball/refs/tags/v0.22.0",
+      "hash": "sha256-aWp608krMtk5I+c3GXyuHkb6ugah40cBI0R52fNqMiI="
+    }
+  },
+  "version": 7
+}

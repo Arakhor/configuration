@@ -1,0 +1,121 @@
+let
+    module =
+        {
+            config,
+            lib,
+            pkgs,
+            ...
+        }:
+        let
+            inherit (lib)
+                mkForce
+                getExe'
+                concatMapAttrs
+                mkOption
+                types
+                ;
+
+            cfg = config.programs.uwsm;
+        in
+        {
+            options = {
+                programs.uwsm = {
+                    defaultDesktop = mkOption {
+                        type = with types; nullOr str;
+                        default = null;
+                        example = lib.literalExpression "${pkgs.hyprland}/share/wayland-sessions/hyprland.desktop";
+                        description = ''
+                            If set, UWSM will automatically launch the set desktop without
+                            prompting for selection.
+                        '';
+                    };
+
+                    desktopNames = mkOption {
+                        type = with types; listOf str;
+                        internal = true;
+                        default = [ ];
+                        description = ''
+                            List of desktop names to create drop-in overrides for. Should be the
+                            exact case-sensitive name used in the .desktop file.
+                        '';
+                    };
+
+                    appUnitOverrides = mkOption {
+                        type = with types; attrsOf lines;
+                        default = { };
+                        # apply = v: (optionalAttrs home-manager.enable homeUwsm.appUnitOverrides) // v;
+                        description = ''
+                            Attribute set of unit overrides. Attribute name should be the unit
+                            name without the app-''${desktop} prefix. Attribute value should be
+                            the multiline unit string.
+                        '';
+                        example = {
+                            "discord-.scope" = ''
+                                [Scope]
+                                KillMode=mixed
+                            '';
+
+                            "steam@.service" = ''
+                                [Service]
+                                ...
+                            '';
+                        };
+                    };
+
+                    fumon.enable = mkOption {
+                        type = types.bool;
+                        default = true;
+                        description = ''
+                            Whether to enable Fumon service monitor. Warning: can cause CPU
+                            spikes when launching units so probably best to disable on low
+                            powered devices and laptops.
+                        '';
+                    };
+                };
+            };
+
+            config = {
+                environment = {
+                    systemPackages = [ pkgs.app2unit ];
+                    sessionVariables.APP2UNIT_SLICES = "a=app-graphical.slice b=background-graphical.slice s=session-graphical.slice";
+                    # Even though I use the -t service flag pretty much everywhere in my
+                    # config still keep the default behaviour as scope because this is
+                    # generally how apps should be launched if we interactively run `app2unit
+                    # app.desktop` in a terminal. Launching with a keybind, launcher or
+                    # script should run the the app in a service since there's no value in
+                    # process or input/output inheritance in these cases.
+                    sessionVariables.APP2UNIT_TYPE = "scope";
+                };
+
+                systemd.user.services.fumon = {
+                    enable = cfg.fumon.enable;
+                    wantedBy = [ "graphical-session.target" ];
+                    path = mkForce [ ]; # reason explained in desktop/default.nix
+                    serviceConfig.ExecStart = [
+                        "" # to replace original ExecStart
+                        (getExe' config.programs.uwsm.package "fumon")
+                    ];
+                };
+
+                systemd.user.units = concatMapAttrs (
+                    unitName: text:
+                    builtins.foldl' (
+                        acc: desktop:
+                        acc
+                        // {
+                            "app-${desktop}-${unitName}" = {
+                                inherit text;
+                                overrideStrategy = "asDropin";
+                            };
+                        }
+                    ) { } cfg.desktopNames
+                ) cfg.appUnitOverrides;
+            };
+        };
+in
+{
+    graphical = {
+        imports = [ module ];
+        programs.uwsm.enable = true;
+    };
+}
