@@ -3,20 +3,25 @@
 
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+        nixpkgs-master.url = "github:NixOS/nixpkgs/master";
 
         nix-maid.url = "github:viperML/nix-maid";
         wrapper-manager.url = "github:viperML/wrapper-manager";
         preservation.url = "github:nix-community/preservation";
+        lanzaboote.url = "github:nix-community/lanzaboote";
 
         nix-index-database.url = "github:nix-community/nix-index-database";
         nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
         rust-overlay.url = "github:oxalica/rust-overlay";
         rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
         fenix.url = "github:nix-community/fenix";
         fenix.inputs.nixpkgs.follows = "nixpkgs";
+
         naersk.url = "github:nix-community/naersk";
         naersk.inputs.nixpkgs.follows = "nixpkgs";
+
         crane.url = "github:ipetkov/crane";
 
         xremap.url = "github:xremap/nix-flake";
@@ -28,10 +33,13 @@
         cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
         niri.url = "github:sodiboo/niri-flake/very-refactor";
+
         niri-fork.url = "github:Naxdy/niri";
         niri-fork.inputs.nixpkgs.follows = "nixpkgs";
+
         niri-scratchpad.url = "github:argosnothing/niri-scratchpad";
         niri-scratchpad.inputs.nixpkgs.follows = "nixpkgs";
+
         nirinit.url = "github:amaanq/nirinit";
         nirinit.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -40,9 +48,10 @@
         topiary-nushell.inputs.nixpkgs.follows = "nixpkgs";
         nu-lint.url = "git+https://codeberg.org/wvhulle/nu-lint";
         nu-lint.inputs.nixpkgs.follows = "nixpkgs";
+        xs.url = "github:cablehead/xs";
+        xs.inputs.nixpkgs.follows = "nixpkgs";
 
         ghostty.url = "github:ghostty-org/ghostty";
-
         helix.url = "github:helix-editor/helix/master";
         yazi.url = "github:sxyazi/yazi";
 
@@ -53,31 +62,37 @@
 
         noctalia.url = "github:noctalia-dev/noctalia-shell";
         noctalia.inputs.nixpkgs.follows = "nixpkgs";
-        noctalia-plugins.url = "github:noctalia-dev/noctalia-plugins";
-        noctalia-plugins.flake = false;
 
         matugen.url = "github:InioX/matugen";
         matugen.inputs.nixpkgs.follows = "nixpkgs";
+        image-hct.url = "github:Neurarian/image-hct";
+        image-hct.inputs.nixpkgs.follows = "nixpkgs";
 
         helium.url = "github:linuxmobile/mynixpkgs";
         helium.inputs.nixpkgs.follows = "nixpkgs";
-
         zen-browser.url = "github:0xc000022070/zen-browser-flake";
         zen-browser.inputs.nixpkgs.follows = "nixpkgs";
-
         glide-browser.url = "github:glide-browser/glide.nix";
         glide-browser.inputs.nixpkgs.follows = "nixpkgs";
 
         wiremix.url = "github:tsowell/wiremix";
         wiremix.inputs.nixpkgs.follows = "nixpkgs";
 
-        treefmt-nix.url = "github:numtide/treefmt-nix";
-
-        wallpapers.url = "github:DenverCoder1/minimalistic-wallpaper-collection";
-        wallpapers.flake = false;
-
         nix-gaming-edge.url = "github:powerofthe69/nix-gaming-edge";
         nix-gaming-edge.inputs.nixpkgs.follows = "nixpkgs";
+
+        nixd.url = "github:nix-community/nixd";
+        nixd.inputs.nixpkgs.follows = "nixpkgs";
+
+        # dms.url = "github:AvengeMedia/DankMaterialShell";
+        # dms.inputs.nixpkgs.follows = "nixpkgs";
+
+        qml-niri.url = "github:imiric/qml-niri";
+        qml-niri.inputs.nixpkgs.follows = "nixpkgs";
+
+        hyprland.url = "github:hyprwm/hyprland";
+        hyprland-plugins.url = "github:hyprwm/hyprland-plugins";
+        hyprland-plugins.inputs.hyprland.follows = "hyprland";
     };
 
     outputs =
@@ -167,23 +182,8 @@
             )) (zipAttrs all-modules);
 
             configs = filterAttrs (name: config: elements ? ${name}) raw-configs;
-
-            systems = [ "x86_64-linux" ];
-
-            forAllSystems = lib.genAttrs systems;
-
-            treefmtEval = forAllSystems (
-                system:
-                inputs.treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} (import ./treefmt.nix inputs)
-            );
         in
         {
-            formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
-
-            checks = forAllSystems (system: {
-                formatting = treefmtEval.${system}.config.build.check self;
-            });
-
             nixosConfigurations = configs;
         };
 }

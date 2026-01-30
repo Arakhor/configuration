@@ -14,6 +14,18 @@
                 pulse.enable = true;
                 jack.enable = true;
                 #media-session.enable = true;
+                extraConfig.pipewire."99-low-latency" = {
+                    context.properties = {
+                        default = {
+                            clock = {
+                                rate = 48000;
+                                quantum = 512;
+                                min-quantum = 256;
+                                max-quantum = 8192;
+                            };
+                        };
+                    };
+                };
             };
 
             # this is the loopback device created in ALSA.

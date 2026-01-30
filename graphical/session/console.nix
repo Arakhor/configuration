@@ -148,6 +148,8 @@ in
                 })
             ];
 
+            environment.systemPackages = [ cfg.package ];
+
             services.kmscon = {
                 enable = false;
                 useXkbConfig = true;
@@ -234,9 +236,9 @@ in
                             gettyCmd = "${lib.getExe' pkgs.util-linux "agetty"} ${lib.escapeShellArgs baseArgs} --noclear - -- $$TERM";
                         in
                         {
-                            ExecStart = ''${pkgs.kmscon}/bin/kmscon --vt=%I --seats=seat0 --no-switchvt ${
+                            ExecStart = "${pkgs.kmscon}/bin/kmscon --vt=%I --seats=seat0 --no-switchvt ${
                                 lib.optionalString (!cfg.hwRender) "--no-drm"
-                            } --configdir ${configDir} --login -- ${gettyCmd}'';
+                            } --configdir ${configDir} --login -- ${gettyCmd}";
 
                             ## I know that usually we'd be using /bin/login directly, but this is what upstream's doing.
 

@@ -21,24 +21,6 @@ in
             )) settings;
 
             config = {
-                # set time/date automatically
-                # services.automatic-timezoned.enable = true;
-                # services.dbus.packages = [ config.services.automatic-timezoned.package ];
-                # services.geoclue2 = {
-                #     enable = true;
-                #     enableDemoAgent = lib.mkForce true;
-                #     appConfig = {
-                #         gammastep = {
-                #             isAllowed = true;
-                #             isSystem = false;
-                #         };
-                #         "nl.whynothugo.darkman" = {
-                #             isAllowed = true;
-                #             isSystem = false;
-                #         };
-                #     };
-                # };
-
                 time.timeZone = lib.mkDefault config.locale.timezone;
                 console.keyMap = config.locale.keyboard-layout;
 

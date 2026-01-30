@@ -1,5 +1,7 @@
 {
     helix,
+    nixd,
+    nushell-nightly,
     topiary-nushell,
     nu-lint,
     ...
@@ -48,10 +50,10 @@
 
                             space = {
                                 x = ":buffer-close";
-
+                                X = ":buffer-close!";
                                 q = ":quit";
-                                w = ":write";
                                 Q = ":quit!";
+                                w = ":write";
                                 W = ":write!";
 
                                 u = {
@@ -136,23 +138,32 @@
             # Language and LSP config.
             languages = {
                 language-server = {
-                    hx-lsp.command = lib.getExe pkgs.hx-lsp;
+                    # hx-lsp.command = lib.getExe pkgs.hx-lsp;
+
+                    nu-lsp = {
+                        command = lib.getExe config.programs.nushell.finalPackage;
+                        args = [ "--lsp" ];
+                    };
+
                     nu-lint = {
                         command = lib.getExe pkgs.nu-lint;
                         args = [ "--lsp" ];
                     };
+
                     nixd = {
-                        command = lib.getExe pkgs.nixd;
+                        command = lib.getExe config.wrappers.nixd.wrapped;
                         args = [ "--semantic-tokens=true" ];
                         config.nixd =
                             let
-                                flake = "(builtins.getFlake \"${config.programs.nh.flake}\")";
+                                flake = "(builtins.getFlake (toString ${config.programs.nh.flake}))";
                                 host = "${flake}.nixosConfigurations.${config.networking.hostName}";
                             in
                             {
-                                nixpkgs.expr = "${host}.config.nixpkgs";
+                                nixpkgs.expr = "import ${flake}.inputs.nixpkgs { }";
                                 options = {
                                     nixos.expr = "${host}.options";
+                                    # maid-users.expr = "${host}.config.users.users.arakhor.maid.build.optionsDoc.optionsNix";
+                                    wrappers.expr = "${host}.options.wrappers.type.getSubOptions []";
                                 };
                             };
                     };
@@ -165,8 +176,17 @@
                             lang:
                             lang
                             // {
-                                language-servers = lib.unique ((lang.language-servers or [ ]) ++ [ "hx-lsp" ]);
+                                language-servers = lib.unique (
+                                    (lang.language-servers or [ ])
+                                    ++ [
+                                        # "hx-lsp"
+                                    ]
+                                );
                                 auto-format = true;
+                                indent = {
+                                    tab-width = 4;
+                                    unit = "    ";
+                                };
                             }
                         )
                         (
@@ -176,10 +196,6 @@
                             ++ [
                                 {
                                     name = "nix";
-                                    indent = {
-                                        tab-width = 4;
-                                        unit = "    ";
-                                    };
                                     language-servers = [
                                         "nixd"
                                         "nil"
@@ -192,11 +208,11 @@
                                 {
                                     name = "nu";
                                     language-servers = [
-                                        "nu-lint"
                                         "nu-lsp"
+                                        "nu-lint"
                                     ];
                                     formatter = {
-                                        command = lib.getExe pkgs.topiary-nushell;
+                                        command = lib.getExe config.wrappers.topiary-nushell.wrapped;
                                         args = [
                                             "format"
                                             "--language"
@@ -212,7 +228,7 @@
             nixpkgs.overlays = [
                 helix.overlays.default
                 (_: _: {
-                    topiary-nushell = topiary-nushell.packages.${pkgs.stdenv.hostPlatform.system}.default;
+                    # topiary-nushell = topiary-nushell.packages.${pkgs.stdenv.hostPlatform.system}.default;
                     nu-lint = nu-lint.packages.${pkgs.stdenv.hostPlatform.system}.default;
                 })
             ];
@@ -232,16 +248,57 @@
             wrappers.helix = {
                 basePackage = pkgs.helix;
                 pathAdd = with pkgs; [
-                    nixd
                     nil
-                    nixfmt
+                    config.wrappers.nixd.wrapped
                     vscode-langservers-extracted
-                    pkgs.topiary-nushell
                 ];
                 prependFlags = [
                     "-c"
                     (tomlformat.generate "helix-config" settings)
                 ];
+            };
+
+            wrappers.topiary-nushell = {
+                basePackage = pkgs.topiary;
+                prependFlags = [ "--merge-configuration" ];
+                env = {
+                    TOPIARY_CONFIG_FILE.value =
+                        let
+                            inherit (nushell-nightly.packages.${pkgs.stdenv.hostPlatform.system}) tree-sitter-nu;
+                        in
+                        pkgs.writeText "languages.ncl"
+                            # nickel
+                            ''
+                                {
+                                  languages = {
+                                    nu = {
+                                      indent = "    ", # 4 spaces
+                                      extensions = ["nu"],
+                                      grammar.source.path = "${tree-sitter-nu}/parser"
+                                    },
+                                  },
+                                }
+                            '';
+                    TOPIARY_LANGUAGE_DIR.value = "${topiary-nushell}/languages";
+                };
+            };
+
+            wrappers.nixd = {
+                basePackage = nixd.packages.${pkgs.stdenv.hostPlatform.system}.default;
+                overrideAttrs = old: {
+                    buildCommand = ''
+                        ${old.buildCommand}
+                        wrapProgram $out/bin/nixd \
+                        --run ${
+                            lib.escapeShellArg
+                                # sh
+                                ''
+                                    export NIX_CONFIG="$(${lib.getExe pkgs.gnused} -E 's/ pipe-operator( |$)/ pipe-operators\1/' /etc/nix/nix.conf)
+                                    $NIX_CONFIG"
+                                ''
+                        }
+                    '';
+                };
             };
         };
 
@@ -250,55 +307,61 @@
         {
             style.dynamic.templates.helix =
                 let
-                    tomlformat = pkgs.formats.toml { };
+                    tomlFormat = pkgs.formats.toml { };
                     keys = config.lib.style.genMatugenKeys { };
                 in
                 with keys;
                 {
                     target = ".config/helix/themes/matugen.toml";
-                    source = tomlformat.generate "matugen-helix.toml" {
-                        "attribute".fg = on_surface;
-                        "label".fg = error;
-                        "namespace".fg = tertiary;
-                        "constructor".fg = tertiary;
-                        "tag".fg = tertiary;
-                        "type".fg = tertiary;
 
-                        "comment" = {
-                            fg = outline;
-                            modifiers = [ "italic" ];
-                        };
+                    # Based on Github Dark
+                    source = tomlFormat.generate "matugen-helix.toml" {
+                        "attribute" = on_surface;
+                        "keyword" = error;
+                        "namespace" = warning;
+                        "punctuation" = on_surface;
+                        "operator" = secondary;
+                        "special" = secondary;
+                        "variable" = on_surface;
+                        "variable.other.member" = primary;
+                        "variable.builtin" = error;
+                        "type" = warning;
+                        "type.builtin" = primary;
+                        "constructor" = tertiary;
+                        "function" = tertiary;
+                        "tag" = success;
+                        "comment" = outline;
+                        "constant" = primary;
+                        "string" = secondary;
+                        "label" = error;
 
-                        "constant".fg = primary;
-                        "constant.builtin".fg = on_surface;
-
-                        "function".fg = tertiary;
-
-                        "keyword".fg = error;
-                        "keyword.control.conditional" = {
-                            fg = error;
-                            modifiers = [ "italic" ];
-                        };
-
-                        "operator".fg = on_surface;
-
-                        "punctuation".fg = outline;
-
-                        "special".fg = primary;
-                        "string".fg = secondary;
-
-                        "variable".fg = on_surface;
-                        "variable.builtin".fg = error;
-                        "variable.parameter".fg = on_surface;
-                        "variable.other.member".fg = primary;
+                        # "comment" = {
+                        #     fg = base03;
+                        #     modifiers = [ "italic" ];
+                        # };
+                        # "operator" = base05;
+                        # "variable" = base08;
+                        # "constant.numeric" = base09;
+                        # "constant" = base09;
+                        # "attribute" = base09;
+                        # "type" = base0a;
+                        # "string" = base0b;
+                        # "variable.other.member" = base0b;
+                        # "constant.character.escape" = base0c;
+                        # "function" = base0d;
+                        # "constructor" = base0d;
+                        # "special" = base0d;
+                        # "keyword" = base0e;
+                        # "label" = base0e;
+                        # "namespace" = base0e;
 
                         "rainbow" = [
-                            primary
-                            secondary
-                            tertiary
                             success
                             warning
                             error
+                            primary
+                            secondary
+                            # tertiary
                         ];
 
                         "diagnostic.error".underline = {
@@ -320,9 +383,9 @@
                         "diagnostic.unnecessary".modifiers = [ "dim" ];
                         "diagnostic.deprecated".modifiers = [ "crossed_out" ];
 
-                        "diff.plus".fg = success;
-                        "diff.delta".fg = tertiary;
-                        "diff.minus".fg = error;
+                        "diff.plus".fg = success_container;
+                        "diff.delta".fg = warning_container;
+                        "diff.minus".fg = error_container;
 
                         "info".fg = primary;
                         "hint".fg = secondary;
@@ -353,11 +416,7 @@
                             fg = on_surface;
                         };
 
-                        "ui.background" = {
-                            fg = on_surface;
-                            bg = surface;
-                        };
-                        "ui.background.separator".fg = outline_variant;
+                        "ui.background" = "none";
 
                         "ui.bufferline" = {
                             bg = surface_container_low;
@@ -369,10 +428,6 @@
                                 color = primary;
                                 style = "line";
                             };
-                        };
-                        "ui.bufferline.inactive" = {
-                            bg = surface_container_low;
-                            fg = on_surface_variant;
                         };
 
                         "ui.cursor" = {
@@ -398,23 +453,16 @@
                             bg = error;
                             fg = on_error;
                         };
-                        "ui.gutter" = {
-                            bg = surface_container_lowest;
-                        };
-                        "ui.gutter.selected" = {
-                            bg = surface_container_low;
-                        };
-                        "ui.help" = {
-                            bg = surface;
-                            fg = on_surface;
-                        };
+
+                        "ui.gutter".bg = surface_container_lowest;
+                        "ui.gutter.selected".bg = surface_container_low;
+                        "ui.help".bg = surface_container;
+
                         "ui.highlight" = {
                             bg = primary_container;
                             fg = on_primary_container;
                         };
-                        "ui.highlight.frameline" = {
-                            fg = primary;
-                        };
+                        "ui.highlight.frameline".fg = primary;
 
                         "ui.linenr".fg = outline_variant;
                         "ui.linenr.selected".fg = primary;
@@ -423,35 +471,23 @@
                             bg = surface_container;
                             fg = on_surface;
                         };
+                        "ui.menu.selected" = {
+                            bg = primary_container;
+                            fg = on_primary_container;
+                        };
                         "ui.menu.scroll" = {
                             bg = surface_container_high;
                             fg = on_surface;
                         };
-                        "ui.menu.selected" = {
-                            bg = primary;
-                            fg = on_primary;
-                        };
 
                         "ui.picker.header" = {
-                            bg = surface_container_highest;
-                            fg = on_surface;
+                            fg = primary;
+                            modifiers = [ "bold" ];
                         };
-                        "ui.picker.header.column" = {
-                            bg = surface_container_high;
-                            fg = on_surface;
-                        };
-                        "ui.picker.header.column.active" = {
-                            bg = primary_container;
-                            fg = on_primary_container;
-                        };
-                        "ui.popup" = {
-                            bg = surface_container_high;
-                            fg = on_surface;
-                        };
-                        "ui.popup.info" = {
-                            bg = surface_container;
-                            fg = outline;
-                        };
+
+                        "ui.popup".bg = surface_container;
+                        "ui.popup.info".bg = surface_container_high;
+
                         "ui.selection" = {
                             bg = secondary_container;
                             fg = on_secondary_container;
@@ -465,17 +501,13 @@
                             bg = surface_container_lowest;
                             fg = on_surface;
                         };
-                        "ui.statusline.inactive" = {
-                            bg = surface_container_highest;
-                            fg = on_surface;
-                        };
                         "ui.statusline.insert" = {
-                            bg = secondary;
-                            fg = on_secondary;
-                        };
-                        "ui.statusline.normal" = {
                             bg = primary;
                             fg = on_primary;
+                        };
+                        "ui.statusline.normal" = {
+                            bg = secondary;
+                            fg = on_secondary;
                         };
                         "ui.statusline.select" = {
                             bg = tertiary;

@@ -66,11 +66,9 @@
                 search_files_in_root = true;
                 providers.applications.preferences.launchPrefix = "app2unit -t service --";
 
-                font = {
-                    normal = {
-                        size = 10;
-                        normal = config.style.fonts.sansSerif.name;
-                    };
+                font.normal = {
+                    size = 10.5;
+                    normal = config.style.fonts.sansSerif.name;
                 };
                 theme = {
                     light.name = "matugen";
@@ -81,9 +79,10 @@
                 launcher_window = {
                     opacity = config.style.opacity;
                     client_side_decorations.rounding = config.style.cornerRadius;
-                    client_side_decorations.border_width = config.style.borderWidth;
+                    client_side_decorations.border_width = config.style.borderWidth * 2;
+                    # compact_mode.enabled = true;
+                    layer_shell.layer = "overlay";
                 };
-
                 fallbacks = [
                     "@fearoffish/kagi-search:index"
                     "files:search"
@@ -153,6 +152,10 @@
                         Slice = config.lib.session.appSlice;
                     };
 
+                    unitConfig.X-Restart-Triggers = [
+                        config.users.users.arakhor.maid.file.xdg_config."vicinae/settings.json".source
+                    ];
+
                     environment = {
                         PATH = lib.mkForce null;
                     };
@@ -164,30 +167,16 @@
             programs.niri.settings = {
                 binds = with config.lib.niri.actions; {
                     "Mod+Space".action = spawn "vicinae" "toggle";
+                    "Mod+Slash".action = spawn-sh "vicinae vicinae://extensions/fearoffish/kagi-search/index";
+                    "Mod+V".action = spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history";
+                    # "Mod+G".action = spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history";
+
                 };
                 layer-rules = lib.singleton {
                     matches = lib.singleton {
                         namespace = "^vicinae$";
                     };
-                    geometry-corner-radius =
-                        let
-                            r = config.style.cornerRadius * 1.0;
-                        in
-                        {
-                            top-left = r;
-                            top-right = r;
-                            bottom-left = r;
-                            bottom-right = r;
-                        };
-                    shadow = {
-                        enable = true;
-                        softness = 22;
-                        spread = 5;
-                        offset = {
-                            x = 0;
-                            y = 4;
-                        };
-                    };
+                    shadow.enable = true;
                 };
             };
 
@@ -217,18 +206,15 @@
                                     lighter = 50;
                                     name = primary;
                                 };
-                                green = tertiary;
+                                green = success;
                                 magenta = secondary;
                                 orange = {
                                     lighter = 40;
                                     name = error;
                                 };
-                                purple = secondary;
+                                purple = tertiary;
                                 red = error;
-                                yellow = {
-                                    lighter = 80;
-                                    name = tertiary;
-                                };
+                                yellow = warning;
                             };
                             button = {
                                 primary = {
@@ -245,14 +231,14 @@
                             core = {
                                 accent = primary;
                                 accent_foreground = on_primary;
-                                background = surface;
-                                border = outline_variant;
+                                background = surface_container;
                                 foreground = on_surface;
-                                secondary_background = surface_container;
+                                secondary_background = surface_container_high;
+                                border = outline_variant;
                             };
                             grid = {
                                 item = {
-                                    background = surface_container;
+                                    background = surface_container_highest;
                                     hover = {
                                         outline = {
                                             name = secondary;
@@ -296,7 +282,7 @@
                                 spinner = primary;
                             };
                             main_window = {
-                                border = outline_variant;
+                                border = primary;
                             };
                             scrollbars = {
                                 background = {
@@ -308,7 +294,7 @@
                                 border = outline;
                             };
                             text = {
-                                danger = error;
+                                danger = warning;
                                 default = on_surface;
                                 links = {
                                     default = primary;
@@ -323,10 +309,10 @@
                                     opacity = 0.6;
                                 };
                                 selection = {
-                                    background = primary;
-                                    foreground = on_primary;
+                                    background = primary_container;
+                                    foreground = on_primary_container;
                                 };
-                                success = tertiary;
+                                success = success;
                             };
                         };
                     };

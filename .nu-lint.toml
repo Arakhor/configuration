@@ -1,0 +1,3 @@
+[rules]
+explicit_long_flags = "off"
+nu_parse_error = "off"

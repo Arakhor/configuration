@@ -20,16 +20,6 @@ let
         {
             options = {
                 programs.uwsm = {
-                    defaultDesktop = mkOption {
-                        type = with types; nullOr str;
-                        default = null;
-                        example = lib.literalExpression "${pkgs.hyprland}/share/wayland-sessions/hyprland.desktop";
-                        description = ''
-                            If set, UWSM will automatically launch the set desktop without
-                            prompting for selection.
-                        '';
-                    };
-
                     desktopNames = mkOption {
                         type = with types; listOf str;
                         internal = true;
@@ -90,7 +80,7 @@ let
                 systemd.user.services.fumon = {
                     enable = cfg.fumon.enable;
                     wantedBy = [ "graphical-session.target" ];
-                    path = mkForce [ ]; # reason explained in desktop/default.nix
+                    environment.PATH = mkForce null; # reason explained in desktop/default.nix
                     serviceConfig.ExecStart = [
                         "" # to replace original ExecStart
                         (getExe' config.programs.uwsm.package "fumon")
@@ -113,9 +103,24 @@ let
             };
         };
 in
+{ sources, ... }:
 {
     graphical = {
         imports = [ module ];
         programs.uwsm.enable = true;
+
+        nixpkgs.overlays = [
+            (_: prev: {
+                uwsm = prev.uwsm.overrideAttrs {
+                    inherit (sources.uwsm) version;
+                    src = sources.uwsm;
+                };
+
+                app2unit = prev.app2unit.overrideAttrs {
+                    inherit (sources.app2unit) version;
+                    src = sources.app2unit;
+                };
+            })
+        ];
     };
 }

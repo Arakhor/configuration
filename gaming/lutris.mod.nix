@@ -10,5 +10,9 @@
             environment.systemPackages = [
                 pkgs.lutris
             ];
+            preserveHome.directories = [
+                "games"
+                ".local/share/lutris"
+            ];
         };
 }

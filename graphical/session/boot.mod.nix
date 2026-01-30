@@ -14,8 +14,8 @@
                     "quiet"
                     "loglevel=3"
                     "systemd.show_status=auto"
-                    "udev.log_level=3"
                     "rd.udev.log_level=3"
+                    "udev.log_level=3"
                     "vt.global_cursor_default=0"
                 ];
                 loader = {
@@ -34,10 +34,6 @@
                     themePackages = [ pkgs.plymouth-blahaj-theme ];
                     theme = "blahaj";
                 };
-
             };
-
-            # environment.systemPackages = [ pkgs.sbctl ];
-            # preserveSystem.directories = [ "/var/lib/sbctl" ];
         };
 }

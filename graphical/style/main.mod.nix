@@ -9,7 +9,7 @@
         let
             cfg = config.style;
             settings = {
-                cornerRadius = 12;
+                cornerRadius = 16;
                 borderWidth = 2;
                 gapSize = 16;
                 opacity = 1.0;
@@ -91,6 +91,7 @@
                     XCURSOR_SIZE = toString cfg.cursor.size;
                 };
                 environment.systemPackages = [
+                    pkgs.hicolor-icon-theme
                     cfg.icons.package
                     cfg.cursor.package
                 ];

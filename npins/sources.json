@@ -1,5 +1,176 @@
 {
   "pins": {
+    "CachyOS-Settings": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "CachyOS",
+        "repo": "CachyOS-Settings"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "d4289ead06ba562ebe3f8cb271e702dfea4e74c7",
+      "url": "https://github.com/CachyOS/CachyOS-Settings/archive/d4289ead06ba562ebe3f8cb271e702dfea4e74c7.tar.gz",
+      "hash": "sha256-GFRHEmpk7RbEeRkvy1ynENblYhOYTxJGEa860dL5Llc="
+    },
+    "app2unit": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "Vladimir-csp",
+        "repo": "app2unit"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v1.2.1",
+      "revision": "83e2656fb8d39ad71e2f8a5ba113a9cedc90841f",
+      "url": "https://api.github.com/repos/Vladimir-csp/app2unit/tarball/refs/tags/v1.2.1",
+      "hash": "sha256-DZ0W7SygOUmjIO0+K8hS9K1U+gSp1gA6Q15eXr6rOmo="
+    },
+    "asusctl": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitLab",
+        "repo_path": "asus-linux/asusctl",
+        "server": "https://gitlab.com/"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "6.3.2",
+      "revision": "475f321100bc12dfd34babc471a04a79ee6d9c05",
+      "url": "https://gitlab.com/api/v4/projects/asus-linux%2Fasusctl/repository/archive.tar.gz?sha=6.3.2",
+      "hash": "sha256-6dZkQ8cPL8dbtvfuc/a5G1BxEaZyNbvy3eRBctFFwVU="
+    },
+    "cardwire": {
+      "type": "Git",
+      "repository": {
+        "type": "GitLab",
+        "repo_path": "asus-linux/cardwire",
+        "server": "https://gitlab.com/"
+      },
+      "branch": "dev",
+      "submodules": false,
+      "revision": "91ab3acf5937be6026d71b9d58863ff947d124d6",
+      "url": "https://gitlab.com/api/v4/projects/asus-linux%2Fcardwire/repository/archive.tar.gz?sha=91ab3acf5937be6026d71b9d58863ff947d124d6",
+      "hash": "sha256-KYN/QbkVU1kP8QDC2+186Je/cE6H7R7bwoJRzvbJjSI="
+    },
+    "firefox-csshacks": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "MrOtherGuy",
+        "repo": "firefox-csshacks"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "bcb85f04764802557fc1d1dff6f53461065e4893",
+      "url": "https://github.com/MrOtherGuy/firefox-csshacks/archive/bcb85f04764802557fc1d1dff6f53461065e4893.tar.gz",
+      "hash": "sha256-VlxdEeMqgRclKQqnKDhBXQ+19ce35ZFdC6SaKg2skUk="
+    },
+    "firefox-gnome-theme": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "rafaelmardojai",
+        "repo": "firefox-gnome-theme"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v143",
+      "revision": "afd438034bf91089cfeb9e6b5cb987bdf5442d0f",
+      "url": "https://api.github.com/repos/rafaelmardojai/firefox-gnome-theme/tarball/refs/tags/v143",
+      "hash": "sha256-0E3TqvXAy81qeM/jZXWWOTZ14Hs1RT7o78UyZM+Jbr4="
+    },
+    "ghostty-shaders": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "0xhckr",
+        "repo": "ghostty-shaders"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "aa6121ba2ddd5251ac75b92729c758fe41256e55",
+      "url": "https://github.com/0xhckr/ghostty-shaders/archive/aa6121ba2ddd5251ac75b92729c758fe41256e55.tar.gz",
+      "hash": "sha256-2AeIjV59d/a+JdEbcPT1dLfUVdegRYIyFLI55daZ0LI="
+    },
+    "lexica-ultralegible": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "jacobxperez",
+        "repo": "lexica-ultralegible"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v1.0.0",
+      "revision": "3acb91b42a745e712fb0cb182e6db280bba19a30",
+      "url": "https://api.github.com/repos/jacobxperez/lexica-ultralegible/tarball/refs/tags/v1.0.0",
+      "hash": "sha256-bz7O71k9GeCIUsvq0vU1rLuvKndIyHpoegTB4JMpRi4="
+    },
+    "linux-g14": {
+      "type": "Git",
+      "repository": {
+        "type": "GitLab",
+        "repo_path": "asus-linux/linux-g14",
+        "server": "https://gitlab.com/"
+      },
+      "branch": "6.18",
+      "submodules": false,
+      "revision": "e2f83ee8892cfa174e1e9be97c4d6a2f7e40e0ef",
+      "url": "https://gitlab.com/api/v4/projects/asus-linux%2Flinux-g14/repository/archive.tar.gz?sha=e2f83ee8892cfa174e1e9be97c4d6a2f7e40e0ef",
+      "hash": "sha256-wwdlmkkhyvB8/ScBOyBFIDgqsj6Pr7XU4cqjPA0a9DA="
+    },
+    "qhd-wallpapers": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "linavixx",
+        "repo": "qhd-wallpapers"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "45ee5024540599ebf048a3c2ec33e26bfff8ee2a",
+      "url": "https://github.com/linavixx/qhd-wallpapers/archive/45ee5024540599ebf048a3c2ec33e26bfff8ee2a.tar.gz",
+      "hash": "sha256-35JjWklbP2vZ8IekaFf0wOShhGT0YtF1Icza5xQDGsM="
+    },
+    "scx-loader": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "sched-ext",
+        "repo": "scx-loader"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "2cced64079cc2d1fbd570746b6bd47e93b99d09e",
+      "url": "https://github.com/sched-ext/scx-loader/archive/2cced64079cc2d1fbd570746b6bd47e93b99d09e.tar.gz",
+      "hash": "sha256-lgCkqMhXXJRABDV6Uf0TE/PQPelYAbBhlCEup2RQnyU="
+    },
+    "uwsm": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "Vladimir-csp",
+        "repo": "uwsm"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v0.26.0+git.1",
+      "revision": "dba5e4b8c3bbd8fc93e16346adba050a09a9fe42",
+      "url": "https://api.github.com/repos/Vladimir-csp/uwsm/tarball/refs/tags/v0.26.0+git.1",
+      "hash": "sha256-jU2/jcJHO2IEpMQYX6gtYzYlDnYhG5OVCqMJc6Q86/8="
+    },
     "zellij-autolock": {
       "type": "GitRelease",
       "repository": {

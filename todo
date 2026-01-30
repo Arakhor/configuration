@@ -1,6 +1,5 @@
 todo
-- integrate nushellWith
 - implement wallpaper service
 - implement matugen service
-- idle management
-- clean up repo
+- fix scx_loader service
+

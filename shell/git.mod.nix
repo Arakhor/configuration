@@ -5,9 +5,6 @@
             lib,
             ...
         }:
-        let
-            yamlFormat = pkgs.formats.yaml { };
-        in
         {
             environment.systemPackages = with pkgs; [
                 gh
@@ -18,6 +15,7 @@
             programs.nushell.shellAliases = {
                 g = "git";
                 ga = "git add";
+                gaa = "git add *";
                 gb = "git branch";
                 gbd = "git branch --delete";
                 gbD = "git branch --delete --force";
@@ -45,7 +43,6 @@
                     };
                     init.defaultBranch = "main";
                     push.default = "current";
-                    core.fsmonitor = lib.getExe pkgs.rs-git-fsmonitor;
                     credential = {
                         "https://github.com".helper = "${pkgs.gh}/bin/gh auth git-credential";
                         "https://gist.github.com".helper = "${pkgs.gh}/bin/gh auth git-credential";
@@ -54,6 +51,7 @@
                         "https://github.com/".insteadOf = "gh:";
                         "https://gitlab.com/".insteadOf = "gl:";
                     };
+                    advice.addIgnoredFile = false;
                 };
 
                 "git/ignore".text = lib.concatLines [
@@ -74,7 +72,6 @@
                     "result-doc"
                     "result-info"
                     "result-man"
-
                 ];
 
                 "gitui/key_bindings.ron".text =

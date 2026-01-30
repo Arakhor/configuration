@@ -1,4 +1,5 @@
 {
+    xs,
     nushell-nightly,
     helix,
     ...
@@ -12,29 +13,35 @@
             ...
         }:
         {
-            nixpkgs.overlays = [ nushell-nightly.overlays.default ];
+            nixpkgs.overlays = [
+                nushell-nightly.overlays.default
+                (final: prev: {
+                    cross-stream = xs.packages.${final.stdenv.hostPlatform.system}.default;
+                })
+            ];
+
             nix.settings.substituters = [ "https://nushell-nightly.cachix.org" ];
             nix.settings.trusted-public-keys = [
                 "nushell-nightly.cachix.org-1:nLwXJzwwVmQ+fLKD6aH6rWDoTC73ry1ahMX9lU87nrc="
             ];
 
             users.users.arakhor.shell = config.programs.nushell.finalPackage;
-
-            environment.systemPackages = [ pkgs.jc ];
+            environment.systemPackages = [
+                pkgs.jc
+                pkgs.cross-stream
+            ];
 
             programs.nushell = {
                 enable = true;
-
                 experimentalOptions = [
                     "pipefail"
                     "enforce-runtime-annotations"
                 ];
-
                 plugins = with pkgs.nushellPlugins; [
                     formats
                     gstat
                     query
-                    polars
+                    # polars
                 ];
 
                 libraries = [
@@ -45,20 +52,12 @@
                 shellAliases = {
                     fg = "job unfreeze";
                     ls = "ls-custom";
+                    incognito = "exec nu --no-history";
                 };
 
                 initConfig =
-                    # nu
-                    ''
-                        use std/dirs
-                        use std/formats [
-                            'from ndjson'
-                            'from jsonl'
-                            'from ndnuon'
-                            'to ndjson'
-                            'to jsonl'
-                            'to ndnuon'
-                        ]
+
+                    lib.mkBefore /* nu */ ''
                         use std [
                             ellie
                             repeat
@@ -67,6 +66,16 @@
                             input
                             iter
                             random
+                            dt
+                            'path add'
+                        ]
+                        use std/formats [
+                            'from ndjson'
+                            'from jsonl'
+                            'from ndnuon'
+                            'to ndjson'
+                            'to jsonl'
+                            'to ndnuon'
                         ]
                         use std-rfc [
                             'into list'
@@ -79,9 +88,6 @@
                             'reject slices'
                             'select column-slices'
                             'reject column-slices'
-                            with-extension
-                            with-stem
-                            with-parent
                             'kv set'
                             'kv get'
                             'kv list'
@@ -90,13 +96,18 @@
                             str
                             iter
                         ]
+                        use std-rfc/path
                         use nu-lib [
                             ls-custom
                             helix-to-nushell
+                            theme-display-color
                             'from nix'
                             'to nix'
+                            type
                         ]
                         use nu_scripts/modules/jc 
+
+                        dircolors | parse "{var}='{val}';" | transpose -dr | load-env 
                     '';
 
                 environmentVariables = with config.lib.nushell; {
@@ -124,7 +135,7 @@
                 };
 
                 settings = {
-                    show_banner = false;
+                    show_banner = "short";
                     edit_mode = "vi";
 
                     cursor_shape.vi_insert = "line";
@@ -134,8 +145,12 @@
                     use_ansi_coloring = true;
 
                     hooks = {
+                        pre_execution = [
+                            "(kv universal-variable-hook)"
+                        ];
+
                         pre_prompt = [
-                            "$env.config.color_config = (helix-to-nushell matugen --repo ${helix})"
+                            "try {$env.config.color_config = (helix-to-nushell matugen --repo ${helix} | theme-display-color )}"
 
                             # HACK: Workaround to reapply env conversions when external tools stringify environment variables.
                             # -> e.g., direnv changes PATH, vivid changes LS_COLORS.
@@ -163,14 +178,13 @@
                         sync_on_enter = true;
                     };
 
-                    footer_mode = 25;
-
+                    footer_mode = "auto";
                     table = {
                         footer_inheritance = true;
                         header_on_separator = true;
-                        index_mode = "always";
+                        index_mode = "auto";
                         missing_value_symbol = "󰟢";
-                        mode = "rounded";
+                        mode = "compact";
                         show_empty = true;
                         trim = {
                             methodology = "truncating";
@@ -267,14 +281,11 @@
                         }
                     ];
                 };
-
             };
 
             preserveHome = {
                 files = [
                     ".config/nushell/history.sqlite3"
-                    ".config/nushell/history.sqlite3-shm"
-                    ".config/nushell/history.sqlite3-wal"
                 ];
                 directories = [
                     ".cache/nushell"

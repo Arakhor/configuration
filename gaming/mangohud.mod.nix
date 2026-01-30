@@ -2,11 +2,12 @@
     gaming =
         {
             pkgs,
+            lib,
             ...
         }:
         {
-
             environment.systemPackages = [ pkgs.mangohud ];
+
             maid-users.file.xdg_config."MangoHud/MangoHud.conf".text = # ini
                 ''
                     legacy_layout=0

@@ -44,8 +44,8 @@
 
                     monospace =
                         mkFontOption {
-                            name = "Lilex";
-                            package = pkgs.lilex;
+                            name = "Monaspace Neon";
+                            package = pkgs.monaspace;
                         }
                         // {
                             features = lib.mkOption {
@@ -53,8 +53,18 @@
                                 type = lib.types.listOf lib.types.str;
                                 default = [
                                     "calt"
+                                    "liga"
+                                    "dlig"
+                                    "ss01"
                                     "ss02"
+                                    "ss03"
                                     "ss04"
+                                    "ss05"
+                                    "ss06"
+                                    "ss07"
+                                    "ss08"
+                                    "ss09"
+                                    "ss10"
                                 ];
                             };
                         };

@@ -1,4 +1,4 @@
-{ glide-browser, ... }:
+{ glide-browser, sources, ... }:
 {
     graphical =
         {
@@ -27,9 +27,6 @@
                 "media.ffmpeg.vaapi.enabled" = true;
 
                 "ui.key.menuAccessKeyFocuses" = false;
-                "sidebar.main.tools" = "";
-                "sidebar.revamp" = true;
-                "sidebar.verticalTabs" = true;
             };
 
             extensions = [
@@ -88,10 +85,8 @@
                     overrideAttrs = old: {
                         buildCommand = ''
                             ${old.buildCommand}
-                            wrapProgram $out/bin/glide-browser \
-                              --set MESA_SHADER_CACHE_DIR "/home/arakhor/.config/glide/glide/.cache" \
-                              --run "${systemctl} is-active --quiet --user glide-browser-persist-init \
-                                  || { ${notifySend} -e -u critical -t 3000 'Glide Browser' 'Initial sync has not yet finished'; exit 0; }"
+                            wrapProgram $out/bin/glide-browser --run "${systemctl} is-active --quiet --user glide-browser-persist-init \
+                            || { ${notifySend} -e -u critical -t 3000 'Glide Browser' 'Initial sync has not yet finished'; exit 0; }"
                         '';
                     };
                 };
@@ -199,11 +194,32 @@
                         };
                     };
 
-                file.xdg_config."glide/glide.ts".text = lib.concatLines [
-                    (renderPrefs prefs)
-                    (renderExtensions extensions)
-                    (renderCss css)
-                ];
+                file.xdg_config = {
+                    "glide/glide.ts".text = lib.concatLines [
+                        (renderPrefs prefs)
+                        (renderExtensions extensions)
+                        (renderCss css)
+                        /* ts */ ''
+                            glide.keymaps.set(
+                              "command",
+                              "<c-j>",
+                              "commandline_focus_next",
+                            );
+                            glide.keymaps.set(
+                              "command",
+                              "<c-k>",
+                              "commandline_focus_back",
+                            );
+                        ''
+                        /* ts */ ''
+                            glide.styles.add(css`
+                              #TabsToolbar {
+                                visibility: collapse !important;
+                              }
+                            `);
+                        ''
+                    ];
+                };
             };
 
             programs.niri.settings.binds = with config.lib.niri.actions; {

@@ -7,26 +7,41 @@
             ...
         }:
         lib.mkMerge [
+            # Backend
+            {
+                networking.networkmanager.enable = true;
+                users.users.arakhor.extraGroups = [ "networkmanager" ];
+                systemd.services.NetworkManager-wait-online.enable = false;
+            }
             # DNS
             {
                 services.resolved.enable = true;
                 networking.networkmanager.dns = "systemd-resolved";
                 systemd.services.systemd-resolved.stopIfChanged = false;
+                networking.nameservers = [
+                    "1.1.1.1"
+                    "1.0.0.1"
+                    "2606:4700:4700::1111"
+                    "2606:4700:4700::1001"
+                ];
             }
-
             # mDNS
-            # {
-            #     services.avahi = {
-            #         enable = true;
-            #         publish = {
-            #             enable = true;
-            #             addresses = true;
-            #         };
-            #         nssmdns4 = true;
-            #         nssmdns6 = true;
-            #     };
-            # }
-
+            {
+                services.avahi = {
+                    enable = true;
+                    publish = {
+                        enable = true;
+                        addresses = true;
+                    };
+                    nssmdns4 = true;
+                    nssmdns6 = true;
+                };
+            }
+            # DHCP
+            {
+                networking.useDHCP = false;
+                networking.dhcpcd.enable = false;
+            }
             # Firewall
             {
                 networking.firewall.enable = true;
@@ -34,19 +49,6 @@
                 networking.firewall.logRefusedConnections = false;
                 networking.nftables.enable = true;
             }
-
-            # Backend
-            {
-                networking.useDHCP = false;
-                networking.dhcpcd.enable = false;
-
-                networking.networkmanager.enable = true;
-
-                systemd.network.wait-online.enable = false;
-                systemd.services.NetworkManager-wait-online.enable = false;
-                users.users.arakhor.extraGroups = [ "networkmanager" ];
-            }
-
             # WiFi
             {
                 networking.networkmanager.wifi = {

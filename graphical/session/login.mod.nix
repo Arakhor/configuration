@@ -19,7 +19,7 @@
 
                 tuigreet-width.proportion = lib.mkOption {
                     type = lib.types.float;
-                    default = 0.5;
+                    default = 1.0;
                 };
             };
 
@@ -35,30 +35,34 @@
                         hotkey-overlay.skip-at-startup = true;
 
                         layout = {
-                            border.active.color = "#ffffff80";
+                            gaps = 64;
+                            background-color = "#000000";
+                            border.active.color = "#ffffff30";
                             center-focused-column = "always";
                             default-column-width.proportion = config.login.tuigreet-width.proportion;
                         };
                     };
 
+                    environment.sessionVariables.UWSM_SILENT_START = 2;
+
                     services.greetd = {
                         enable = true;
-                        useTextGreeter = true;
+                        # useTextGreeter = true;
                         settings.default_session = {
                             # greetd should run as the greeter user otherwise it automatically logs
                             # in without prompting for password
                             user = "greeter";
-                            # command = ''
-                            #     ${lib.getExe pkgs.tuigreet} \
-                            #     --time \
-                            #     --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions \
-                            #     --remember-session \
-                            #     --remember \
-                            #     --asterisks
-                            # '';
                             command =
                                 let
                                     niri = "/run/current-system/sw/bin/niri";
+                                    ghostty = lib.getExe pkgs.ghostty;
+                                    ghostty-config =
+                                        (pkgs.runNuCommandLocal "config" { } /* nu */ ''
+                                            open --raw ${config.users.users.arakhor.maid.file.xdg_config."ghostty/config".source}
+                                            | str replace 'matugen' 'Material Ocean'
+                                            | save $env.out
+                                        '').outPath;
+                                    tuigreet = lib.getExe pkgs.tuigreet;
                                 in
                                 builtins.concatStringsSep " " [
                                     niri
@@ -67,42 +71,36 @@
                                     "--"
                                     "/usr/bin/env"
                                     # shader cache for the Blazingly Fast Terminal Emulators
-                                    "XDG_CACHE_HOME=/tmp/greeter-cache"
-                                    (lib.getExe pkgs.alacritty)
-                                    "--config-file"
-                                    config.users.users.arakhor.maid.file.xdg_config."alacritty/alacritty.toml".source
+                                    "XDG_CACHE_HOME=/var/cache/tuigreet"
+                                    ghostty
+                                    "--config-file=${ghostty-config}"
                                     "-e"
-                                    (pkgs.writeScript "greet-cmd" ''
-                                        ${lib.getExe pkgs.tuigreet} ${
-                                            builtins.concatStringsSep " " [
-                                                "--remember"
-                                                "--asterisks"
-                                                "--cmd"
-                                                "${pkgs.writeScript "init-session" ''
-                                                    UWSM_SILENT_START=1 exec uwsm start -- ${config.programs.uwsm.defaultDesktop}
-                                                ''}"
-                                            ]
-                                        }
-                                        "${niri} msg action quit --skip-confirmation"
-                                    '')
+                                    tuigreet
+                                    "--time"
+                                    "--remember"
+                                    "--remember-session"
+                                    "--asterisks"
+                                    "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+                                    ";"
+                                    "${niri} msg action quit"
                                 ];
                         };
                     };
 
                     security = {
+                        polkit.enable = true;
                         soteria.enable = true;
                         pam.services.greetd = {
                             enableGnomeKeyring = true;
-                            u2fAuth = true;
                         };
-                        polkit.enable = true;
                     };
 
                     systemd.user.services.polkit-soteria = {
-                        path = lib.mkForce [ ];
-                        requisite = [ "graphical-session.target" ];
+                        environment.PATH = lib.mkForce null;
                         serviceConfig.Slice = config.lib.session.sessionSlice;
+                        requisite = [ "graphical-session.target" ];
                         wantedBy = [ "graphical-session.target" ];
+                        after = [ "graphical-session.target" ];
                     };
 
                     preserveSystem.directories = lib.singleton {

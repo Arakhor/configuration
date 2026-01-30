@@ -8,8 +8,8 @@
                 "--ozone-platform=wayland"
                 "--enable-features=WaylandWindowDecorations"
                 # GPU and Video Acceleration Flags
-                "--use-vulkan=native"
-                "--enable-dawn-backend=vulkan"
+                # "--use-vulkan=native"
+                # "--enable-dawn-backend=vulkan"
                 "--ignore-gpu-blocklist"
                 "--enable-gpu-rasterization"
                 "--enable-zero-copy"
@@ -20,7 +20,7 @@
                 "--enable-features=${
                     lib.concatStringsSep "," [
                         "UseOzonePlatform"
-                        "Vulkan"
+                        # "Vulkan"
                         "SkiaGraphite"
                         "VaapiVideoEncoder"
                         "VaapiVideoDecoder"

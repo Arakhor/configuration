@@ -1,4 +1,4 @@
-{ ghostty, ... }:
+{ ghostty, sources, ... }:
 {
     graphical =
         {
@@ -39,7 +39,7 @@
                             primary
                             tertiary
                             secondary
-                            on_surface
+                            on_surface_variant
                             outline_variant
                             error
                             success
@@ -47,10 +47,10 @@
                             primary
                             tertiary
                             secondary
-                            on_surface_variant
+                            on_surface
                         ];
                         background = surface;
-                        foreground = on_surface;
+                        foreground = on_surface_variant;
                         cursor-color = primary;
                         selection-background = primary_container;
                         selection-foreground = on_primary_container;
@@ -58,33 +58,67 @@
                     hooks.after = "pkill -SIGUSR2 ghostty";
                 };
 
-            maid-users = {
-                packages = [
-                    package
-                    (lib.hiPrio (
-                        pkgs.runCommand "ghostty-desktop-modify" { } ''
-                            mkdir -p $out/share/applications
-                            substitute ${pkgs.ghostty}/share/applications/${desktopId}.desktop $out/share/applications/${desktopId}.desktop \
-                              --replace-fail "Type=Application" "Type=Application
-                            X-TerminalArgAppId=--class
-                            X-TerminalArgDir=--working-directory
-                            X-TerminalArgHold=--wait-after-command
-                            X-TerminalArgTitle=--title"
-                        ''
-                    ))
-                ];
+            environment.systemPackages = [
+                package
+                (lib.hiPrio (
+                    pkgs.runCommand "ghostty-desktop-modify" { } ''
+                        mkdir -p $out/share/applications
+                        substitute ${pkgs.ghostty}/share/applications/${desktopId}.desktop $out/share/applications/${desktopId}.desktop \
+                          --replace-fail "Type=Application" "Type=Application
+                        X-TerminalArgAppId=--class
+                        X-TerminalArgDir=--working-directory
+                        X-TerminalArgHold=--wait-after-command
+                        X-TerminalArgTitle=--title"
+                    ''
+                ))
+            ];
 
+            systemd.user.services."app-com.mitchellh.ghostty" = {
+                description = "Ghostty";
+                after = [
+                    "graphical-session.target"
+                    "dbus.socket"
+                ];
+                environment.PATH = lib.mkForce null;
+                requires = [ "dbus.socket" ];
+                serviceConfig = {
+                    Type = "notify-reload";
+                    ReloadSignal = "SIGUSR2";
+                    BusName = "com.mitchellh.ghostty";
+                    ExecStart = "${lib.getExe package} --gtk-single-instance=true --initial-window=false";
+                    Slice = config.lib.session.appSlice;
+                };
+
+                wantedBy = [ "graphical-session.target" ];
+            };
+
+            services.dbus.packages = [ package ];
+
+            maid-users = {
                 file.xdg_config."ghostty/config".source = keyValue.generate "ghostty-config" {
                     bell-features = lib.concatStringsSep "," [
                         "system"
                         "attention"
                         "title"
+                        "audio"
                     ];
 
                     shell-integration-features = true;
 
+                    # custom-shader = [
+                    #     "${sources.ghostty-shaders}/in-game-crt-cursor.glsl"
+                    #     (pkgs.runNuCommand "in-game-crt.glsl" { } ''
+                    #         open ${sources.ghostty-shaders}/in-game-crt.glsl --raw
+                    #         | str replace 'FLICKER_STRENGTH 0.04' 'FLICKER_STRENGTH 0.02'
+                    #         | save $env.out
+                    #     '')
+                    # ];
+
                     background-opacity = config.style.opacity;
                     background-opacity-cells = true;
+
+                    cursor-style = "bar";
+                    cursor-style-blink = true;
 
                     gtk-toolbar-style = "flat";
                     gtk-tabs-location = "bottom";
@@ -93,27 +127,16 @@
                     window-decoration = false;
                     window-theme = "ghostty";
                     window-padding-color = "extend";
-                    window-padding-balance = true;
+                    # window-padding-balance = true;
                     window-padding-x = config.style.gapSize / 2;
-                    window-padding-y = config.style.gapSize / 2;
+                    window-padding-y = config.style.gapSize / 4;
 
-                    font-size = 10;
                     adjust-cell-height = "40%";
                     adjust-underline-position = "20%";
 
                     theme = "matugen";
+                    font-size = 10;
                     font-family = config.style.fonts.monospace.name;
-
-                    # font-family = "Monaspace Neon";
-                    # font-family-italic = "Monaspace Radon";
-                    # font-family-bold = "Monaspace Krypton";
-                    # font-family-bold-italic = "Monaspace Xenon";
-
-                    # font-style = "Medium";
-                    # font-style-italic = "Medium";
-                    # font-style-bold = "Medium";
-                    # font-style-bold-italic = "Medium";
-
                     font-feature = config.style.fonts.monospace.features;
 
                     confirm-close-surface = false;
@@ -162,6 +185,10 @@
                         ]
                     ];
                 };
+            };
+
+            programs.niri.settings.binds = with config.lib.niri.actions; {
+                "Mod+T".action = spawn-sh "app2unit -t service ${desktopId}.desktop:new-window";
             };
         };
 }
