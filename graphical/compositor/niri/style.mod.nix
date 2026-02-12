@@ -35,16 +35,7 @@
                         };
 
                         border.enable = false;
-
-                        shadow = {
-                            enable = true;
-                            softness = 22;
-                            spread = 1;
-                            offset = {
-                                x = 2;
-                                y = 3;
-                            };
-                        };
+                        shadow.enable = false;
 
                         # tab-indicator = {
                         #     position = "right";
@@ -107,7 +98,7 @@
                             (plain "insert-hint" [ (leaf "color" "${primary}80") ])
                         ])
                         (plain "overview" [
-                            (leaf "backdrop-color" surface_container)
+                            (leaf "backdrop-color" surface_container_lowest)
                         ])
                         (plain "recent-windows" [
                             (plain "highlight" [

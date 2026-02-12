@@ -1,18 +1,5 @@
 {
   "pins": {
-    "CachyOS-Settings": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "CachyOS",
-        "repo": "CachyOS-Settings"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "d4289ead06ba562ebe3f8cb271e702dfea4e74c7",
-      "url": "https://github.com/CachyOS/CachyOS-Settings/archive/d4289ead06ba562ebe3f8cb271e702dfea4e74c7.tar.gz",
-      "hash": "sha256-GFRHEmpk7RbEeRkvy1ynENblYhOYTxJGEa860dL5Llc="
-    },
     "app2unit": {
       "type": "GitRelease",
       "repository": {
@@ -28,22 +15,6 @@
       "revision": "83e2656fb8d39ad71e2f8a5ba113a9cedc90841f",
       "url": "https://api.github.com/repos/Vladimir-csp/app2unit/tarball/refs/tags/v1.2.1",
       "hash": "sha256-DZ0W7SygOUmjIO0+K8hS9K1U+gSp1gA6Q15eXr6rOmo="
-    },
-    "asusctl": {
-      "type": "GitRelease",
-      "repository": {
-        "type": "GitLab",
-        "repo_path": "asus-linux/asusctl",
-        "server": "https://gitlab.com/"
-      },
-      "pre_releases": false,
-      "version_upper_bound": null,
-      "release_prefix": null,
-      "submodules": false,
-      "version": "6.3.2",
-      "revision": "475f321100bc12dfd34babc471a04a79ee6d9c05",
-      "url": "https://gitlab.com/api/v4/projects/asus-linux%2Fasusctl/repository/archive.tar.gz?sha=6.3.2",
-      "hash": "sha256-6dZkQ8cPL8dbtvfuc/a5G1BxEaZyNbvy3eRBctFFwVU="
     },
     "cardwire": {
       "type": "Git",
@@ -100,22 +71,6 @@
       "url": "https://github.com/0xhckr/ghostty-shaders/archive/aa6121ba2ddd5251ac75b92729c758fe41256e55.tar.gz",
       "hash": "sha256-2AeIjV59d/a+JdEbcPT1dLfUVdegRYIyFLI55daZ0LI="
     },
-    "lexica-ultralegible": {
-      "type": "GitRelease",
-      "repository": {
-        "type": "GitHub",
-        "owner": "jacobxperez",
-        "repo": "lexica-ultralegible"
-      },
-      "pre_releases": false,
-      "version_upper_bound": null,
-      "release_prefix": null,
-      "submodules": false,
-      "version": "v1.0.0",
-      "revision": "3acb91b42a745e712fb0cb182e6db280bba19a30",
-      "url": "https://api.github.com/repos/jacobxperez/lexica-ultralegible/tarball/refs/tags/v1.0.0",
-      "hash": "sha256-bz7O71k9GeCIUsvq0vU1rLuvKndIyHpoegTB4JMpRi4="
-    },
     "linux-g14": {
       "type": "Git",
       "repository": {
@@ -125,9 +80,9 @@
       },
       "branch": "6.18",
       "submodules": false,
-      "revision": "e2f83ee8892cfa174e1e9be97c4d6a2f7e40e0ef",
-      "url": "https://gitlab.com/api/v4/projects/asus-linux%2Flinux-g14/repository/archive.tar.gz?sha=e2f83ee8892cfa174e1e9be97c4d6a2f7e40e0ef",
-      "hash": "sha256-wwdlmkkhyvB8/ScBOyBFIDgqsj6Pr7XU4cqjPA0a9DA="
+      "revision": "b0c3ba427858bde8281bfabcdc0fb643a1f375df",
+      "url": "https://gitlab.com/api/v4/projects/asus-linux%2Flinux-g14/repository/archive.tar.gz?sha=b0c3ba427858bde8281bfabcdc0fb643a1f375df",
+      "hash": "sha256-D5PKXlqJsgYYJ7y2pLk4OtwdUUi1KVhwSnzGRcMULYE="
     },
     "qhd-wallpapers": {
       "type": "Git",
@@ -166,10 +121,10 @@
       "version_upper_bound": null,
       "release_prefix": null,
       "submodules": false,
-      "version": "v0.26.0+git.1",
-      "revision": "dba5e4b8c3bbd8fc93e16346adba050a09a9fe42",
-      "url": "https://api.github.com/repos/Vladimir-csp/uwsm/tarball/refs/tags/v0.26.0+git.1",
-      "hash": "sha256-jU2/jcJHO2IEpMQYX6gtYzYlDnYhG5OVCqMJc6Q86/8="
+      "version": "v0.26.1",
+      "revision": "9c3f28beabda78f15330fa4d5c75a9ab190aaf2b",
+      "url": "https://api.github.com/repos/Vladimir-csp/uwsm/tarball/refs/tags/v0.26.1",
+      "hash": "sha256-HyclcItaSsBhzyYM9sgloSG6TBWvsUkRs+oIPezvO0E="
     },
     "zellij-autolock": {
       "type": "GitRelease",

@@ -1,4 +1,3 @@
-{ sources, ... }:
 {
     zeph =
         {
@@ -9,27 +8,19 @@
         }:
         {
             boot = {
-                # kernelPackages = lib.mkForce pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-zen4;
+                kernelPackages = lib.mkForce pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-zen4;
 
-                kernelPackages =
-                    pkgs.cachyosKernels.linux-cachyos-latest-lto-zen4.override {
-                        autofdo = true;
+                # kernelPackages =
+                #     pkgs.cachyosKernels.linux-cachyos-latest-lto-zen4.override {
+                #         autofdo = true;
 
-                        patches = map (v: sources.linux-g14 + "/" + v + ".patch") [
-                            "PATCH-asus-wmi-fixup-screenpad-brightness"
-                            "0010-platform-x86-asus-wmi-move-keyboard-control-firmware"
-                        ];
-                    }
-                    |> pkgs.linuxKernel.packagesFor
-                    |> lib.mkForce;
-
-                initrd.kernelModules = [
-                    "amdgpu"
-                    # "nvidia"
-                    # "nvidia_modeset"
-                    # "nvidia_uvm"
-                    # "nvidia_drm"
-                ];
+                #         # patches = map (v: sources.linux-g14 + "/" + v + ".patch") [
+                #         #     "PATCH-asus-wmi-fixup-screenpad-brightness"
+                #         #     "0010-platform-x86-asus-wmi-move-keyboard-control-firmware"
+                #         # ];
+                #     }
+                #     |> pkgs.linuxKernel.packagesFor
+                #     |> lib.mkForce;
 
                 kernelParams = [
                     "amdgpu.sg_display=0"
@@ -41,81 +32,14 @@
                 '';
             };
 
-            nixpkgs.overlays = [
-                (final: prev: {
-                    asusctl = prev.rustPlatform.buildRustPackage rec {
-                        pname = "asusctl";
-                        # Set this to the version from your source or desired tag
-                        version = sources.asusctl.version;
-                        src = sources.asusctl;
-
-                        # Set to empty string to get the correct hash on the first build
-                        cargoHash = "sha256-FlEuv/iaNlfXLhHRSmZedPwroCozaEqIvYRqbgJhgEw=";
-
-                        env = {
-                            # force linking to all the dlopen()ed dependencies
-                            RUSTFLAGS = toString (
-                                map (a: "-C link-arg=${a}") [
-                                    "-Wl,--push-state,--no-as-needed"
-                                    "-lEGL"
-                                    "-lfontconfig"
-                                    "-lwayland-client"
-                                    "-Wl,--pop-state"
-                                ]
-                            );
-                        };
-
-                        # Inherit standard build attributes
-                        inherit (prev.asusctl)
-                            nativeBuildInputs
-                            buildInputs
-                            meta
-                            doCheck
-                            doInstallCheck
-                            ;
-
-                        # Copy postPatch from the package definition.
-                        # Note: If the 'sg' crate version in your Cargo.lock differs
-                        # from '0.4.0', you may need to update that path below.
-                        postPatch = ''
-                            files="asusd-user/src/config.rs asusd-user/src/daemon.rs asusd/src/aura_anime/config.rs rog-aura/src/aura_detection.rs rog-control-center/src/lib.rs rog-control-center/src/main.rs rog-control-center/src/tray.rs"
-                            for file in $files; do
-                              substituteInPlace $file --replace-fail /usr/share $out/share
-                            done
-
-                            substituteInPlace rog-control-center/src/main.rs \
-                              --replace-fail 'std::env::var("RUST_TRANSLATIONS").is_ok()' 'true'
-
-                            substituteInPlace data/asusd.service \
-                              --replace-fail /usr/bin/asusd $out/bin/asusd \
-                              --replace-fail /bin/sleep ${prev.lib.getExe' prev.coreutils "sleep"}
-                            substituteInPlace data/asusd-user.service \
-                              --replace-fail /usr/bin/asusd-user $out/bin/asusd-user \
-                              --replace-fail /usr/bin/sleep ${prev.lib.getExe' prev.coreutils "sleep"}
-
-                            substituteInPlace Makefile \
-                              --replace-fail /usr/bin/grep ${prev.lib.getExe prev.gnugrep}
-
-                            substituteInPlace /build/asusctl-''${version}-vendor/sg-0.4.0/build.rs \
-                              --replace-fail /usr/include ${prev.lib.getDev prev.glibc}/include
-                        '';
-
-                        # Copy postInstall
-                        postInstall = ''
-                            make prefix=$out install-data
-
-                            patchelf $out/bin/rog-control-center \
-                              --add-needed ${prev.lib.getLib prev.libxkbcommon}/lib/libxkbcommon.so.0
-                        '';
-                    };
-                })
-            ];
-
             services.asusd.enable = true;
             systemd.services.asusd.wantedBy = [ "multi-user.target" ];
+
+            # Broken
             services.asusd.enableUserService = lib.mkForce false;
             services.supergfxd.enable = lib.mkForce false;
-            services.switcherooControl.enable = true;
+
+            # services.switcherooControl.enable = true;
 
             hardware.graphics = {
                 enable = true;
@@ -128,8 +52,8 @@
             };
 
             services.xserver.videoDrivers = [
-                "amdgpu"
                 "nvidia"
+                "amdgpu"
             ];
 
             # Set up a udev rule to create named symlinks for the pci paths.
@@ -160,7 +84,7 @@
                             busHex = lib.fixedWidthString 2 "0" (toHex bus);
                             deviceHex = lib.fixedWidthString 2 "0" (toHex device);
                         in
-                        "dri/by-path/pci-${domain}:${busHex}:${deviceHex}.${function}-render";
+                        "dri/by-path/pci-${domain}:${busHex}:${deviceHex}.${function}";
 
                     pCfg = config.hardware.nvidia.prime;
 
@@ -171,8 +95,10 @@
                 in
                 lib.singleton (
                     pkgs.writeTextDir "lib/udev/rules.d/61-gpu-offload.rules" ''
-                        SYMLINK=="${pciPath igpuBusId}", SYMLINK+="dri/igpu"
-                        SYMLINK=="${pciPath dgpuBusId}", SYMLINK+="dri/dgpu"
+                        SYMLINK=="${pciPath igpuBusId}-card", SYMLINK+="dri/igpu-card"
+                        SYMLINK=="${pciPath igpuBusId}-render", SYMLINK+="dri/igpu-render"
+                        SYMLINK=="${pciPath dgpuBusId}-card", SYMLINK+="dri/dgpu-card"
+                        SYMLINK=="${pciPath dgpuBusId}-render", SYMLINK+="dri/dgpu-render"
                     ''
                 );
 
@@ -204,6 +130,11 @@
                 __GL_SHADER_DISK_CACHE_SIZE = 12000000000;
                 # Set RADV as default Vulkan driver
                 AMD_VULKAN_ICD = "RADV";
+            };
+
+            programs.nushell.shellAliases = {
+                miniled = "asusctl armoury set mini_led_mode";
+                aura = "asusctl aura effect";
             };
 
             # Preserve critical configuration directories

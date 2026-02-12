@@ -14,6 +14,7 @@
             pdfreader = "org.pwmt.zathura.desktop";
             torrent = "org.transmissionbt.Transmission.desktop";
             video = "mpv.desktop";
+            audio = video;
             image = "swayimg.desktop";
             editor = "helix.desktop";
             fileManager = "org.gnome.Nautilus.desktop";
@@ -29,14 +30,10 @@
                     "x-scheme-handler/unknown"
                 ] (_: browser))
 
-                (genAttrs [
-                    "audio/*"
-                    "video/*"
-                ] (_: video))
-
-                (genAttrs [
-                    "image/*"
-                ] (_: image))
+                (genAttrs [ "audio/*" ] (_: audio))
+                (genAttrs [ "video/*" ] (_: video))
+                (genAttrs [ "image/*" ] (_: image))
+                (genAttrs [ "x-scheme-handler/magnet" ] (_: torrent))
 
                 (genAttrs [
                     "application/pdf"
@@ -59,11 +56,6 @@
                     "application/x-rar"
                     "application/x-xz"
                 ] (_: fileManager))
-
-                {
-                    "x-scheme-handler/magnet" = torrent;
-                    "x-scheme-handler/terminal" = terminal;
-                }
 
                 (genAttrs [
                     "text/plain"
@@ -109,19 +101,23 @@
                     "text/x-sql"
                     "application/sql"
                 ] (_: editor))
+
+                {
+                    "x-scheme-handler/terminal" = "xdg-terminal-exec";
+                }
             ];
 
             # User Dirs
             userDirs = {
-                XDG_DOCUMENTS_DIR = "$HOME/documents";
-                XDG_DOWNLOAD_DIR = "$HOME/downloads";
-                XDG_MUSIC_DIR = "$HOME/music";
-                XDG_PICTURES_DIR = "$HOME/pictures";
-                XDG_SCREENSHOTS_DIR = "$HOME/pictures/screenshots";
-                XDG_VIDEOS_DIR = "$HOME/videos";
-                XDG_DESKTOP_DIR = "$HOME/.local/desktop";
-                XDG_PUBLICSHARE_DIR = "$HOME/.local/public";
-                XDG_TEMPLATES_DIR = "$HOME/.local/templates";
+                XDG_DOCUMENTS_DIR = "documents";
+                XDG_DOWNLOAD_DIR = "downloads";
+                XDG_MUSIC_DIR = "music";
+                XDG_PICTURES_DIR = "pictures";
+                XDG_SCREENSHOTS_DIR = "pictures/screenshots";
+                XDG_VIDEOS_DIR = "videos";
+                XDG_DESKTOP_DIR = ".local/desktop";
+                XDG_PUBLICSHARE_DIR = ".local/public";
+                XDG_TEMPLATES_DIR = ".local/templates";
             };
 
             mimeAppsList = lib.generators.toINI { } {
@@ -132,7 +128,7 @@
             userDirsList =
                 let
                     # For some reason, these need to be wrapped with quotes to be valid.
-                    wrapped = lib.mapAttrs (_: value: ''"${value}"'') userDirs;
+                    wrapped = lib.mapAttrs (_: value: ''"$HOME/${value}"'') userDirs;
                 in
                 lib.generators.toKeyValue { } wrapped;
         in

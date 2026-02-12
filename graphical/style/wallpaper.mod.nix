@@ -80,7 +80,7 @@
                                     if $MATUGEN {
                                         ${lib.concatLines hooksBefore}
 
-                                        ln -sfT ${config.style.dynamic.themeBundle}/($wallpaper | path basename) ($nu.home-dir)/${themeCache}
+                                        ln -sfT ($env.XDG_STATE_HOME)/themes/($wallpaper | path basename) ($nu.home-dir)/${themeCache}
 
                                         ${lib.concatLines hooksAfter}
                                     }

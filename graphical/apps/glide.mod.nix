@@ -9,10 +9,8 @@
         }:
         let
             prefs = {
-                "browser.startup.homepage" = "https://kagi.com/";
-
                 "browser.aboutConfig.showWarning" = false;
-                "browser.download.useDownloadDir" = false;
+                # "browser.download.useDownloadDir" = false;
                 "browser.toolbars.bookmarks.visibility" = "never";
                 "browser.uidensity" = 1;
                 "browser.urlbar.suggest.engines" = false;
@@ -24,13 +22,16 @@
                 "media.videocontrols.picture-in-picture.audio-toggle.enabled" = true;
                 "signon.management.page.breach-alerts.enabled" = false;
                 "signon.rememberSignons" = false;
-                "media.ffmpeg.vaapi.enabled" = true;
-
                 "ui.key.menuAccessKeyFocuses" = false;
+
+                # https://github.com/elFarto/nvidia-vaapi-driver#firefox
+                "media.ffmpeg.vaapi.enabled" = true;
+                "media.hardware-video-decoding.force-enabled" = true;
+                "media.av1.enabled" = false;
+                "gfx.x11-egl.force-enabled" = true;
             };
 
             extensions = [
-                "canvasblocker"
                 "clearurls"
                 "dearrow"
                 "istilldontcareaboutcookies"
@@ -63,7 +64,7 @@
                     "glide.addons.install(\"https://addons.mozilla.org/firefox/downloads/latest/${slug}/latest.xpi\");"
                 ) extensions;
 
-            renderCss = css: ''
+            renderCss = css: /* tss */ ''
                 glide.styles.add(css`
                     ${css}
                 `);
@@ -199,6 +200,7 @@
                         (renderPrefs prefs)
                         (renderExtensions extensions)
                         (renderCss css)
+                        (renderCss (builtins.readFile "${sources.firefox-csshacks}/chrome/autohide_tabstoolbar_v2.css"))
                         /* ts */ ''
                             glide.keymaps.set(
                               "command",
@@ -210,13 +212,6 @@
                               "<c-k>",
                               "commandline_focus_back",
                             );
-                        ''
-                        /* ts */ ''
-                            glide.styles.add(css`
-                              #TabsToolbar {
-                                visibility: collapse !important;
-                              }
-                            `);
                         ''
                     ];
                 };

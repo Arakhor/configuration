@@ -9,15 +9,14 @@
         {
             style.wallpaper =
                 let
-                    # TODO: transition fps
-                    transition = "--transition-bezier .43,1.19,1,.4 --transition-type center --transition-duration 1 --transition-fps 240";
+                    transition = "--transition-bezier .43,1.19,1,.4 --transition-type center --transition-duration 1 --transition-fps 24";
                 in
                 {
                     wallpaperUnit = "swww.service";
                     setWallpaperCommand = "${lib.getExe pkgs.swww} img ${transition}";
                 };
 
-            maid-users.systemd.services.swww = {
+            systemd.user.services.swww = {
                 description = "Swww Wallpaper Daemon";
                 before = [ "set-wallpaper.service" ];
                 partOf = [ "graphical-session.target" ];

@@ -169,8 +169,7 @@
                     "Mod+Space".action = spawn "vicinae" "toggle";
                     "Mod+Slash".action = spawn-sh "vicinae vicinae://extensions/fearoffish/kagi-search/index";
                     "Mod+V".action = spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history";
-                    # "Mod+G".action = spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history";
-
+                    "Mod+G".action = spawn-sh "vicinae vicinae://extensions/knoopx/niri/windows";
                 };
                 layer-rules = lib.singleton {
                     matches = lib.singleton {
@@ -202,54 +201,37 @@
                         colors = {
                             accents = {
                                 blue = primary;
-                                cyan = {
-                                    lighter = 50;
-                                    name = primary;
-                                };
+                                cyan = secondary;
                                 green = success;
-                                magenta = secondary;
+                                red = error;
                                 orange = {
                                     lighter = 40;
                                     name = error;
                                 };
+                                magenta = tertiary;
                                 purple = tertiary;
-                                red = error;
                                 yellow = warning;
                             };
-                            button = {
-                                primary = {
-                                    background = surface_container_high;
-                                    focus = {
-                                        outline = primary;
-                                    };
-                                    foreground = on_surface;
-                                    hover = {
-                                        background = surface_container_highest;
-                                    };
-                                };
-                            };
+
                             core = {
+                                foreground = on_surface;
+                                background = surface_container;
+                                secondary_background = surface_container_high;
                                 accent = primary;
                                 accent_foreground = on_primary;
-                                background = surface_container;
-                                foreground = on_surface;
-                                secondary_background = surface_container_high;
                                 border = outline_variant;
                             };
-                            grid = {
-                                item = {
+                            main_window.border = primary;
+                            settings_window.border = outline;
+
+                            button.primary = {
+                                foreground = on_surface;
+                                background = surface_container_high;
+                                focus = {
+                                    outline = primary;
+                                };
+                                hover = {
                                     background = surface_container_highest;
-                                    hover = {
-                                        outline = {
-                                            name = secondary;
-                                            opacity = 0.8;
-                                        };
-                                    };
-                                    selection = {
-                                        outline = {
-                                            name = primary;
-                                        };
-                                    };
                                 };
                             };
                             input = {
@@ -257,41 +239,34 @@
                                 border_error = error;
                                 border_focus = primary;
                             };
-                            list = {
-                                item = {
-                                    hover = {
-                                        background = {
-                                            name = primary_container;
-                                            opacity = 0.25;
-                                        };
-                                        foreground = on_surface;
+                            grid.item = {
+                                background = surface_container;
+                                hover.outline.name = outline;
+                                selection.outline.name = primary;
+                            };
+                            list.item = {
+                                hover = {
+                                    background = {
+                                        name = primary_container;
+                                        opacity = 0.25;
                                     };
-                                    selection = {
-                                        background = {
-                                            name = primary_container;
-                                            opacity = 0.5;
-                                        };
-                                        foreground = on_primary_container;
-                                        secondary_background = primary_container;
-                                        secondary_foreground = on_primary_container;
+                                    foreground = on_surface;
+                                };
+                                selection = {
+                                    background = {
+                                        name = primary_container;
+                                        opacity = 0.5;
                                     };
+                                    foreground = on_primary_container;
+                                    secondary_background = primary_container;
+                                    secondary_foreground = on_primary_container;
                                 };
                             };
-                            loading = {
-                                bar = primary;
-                                spinner = primary;
-                            };
-                            main_window = {
-                                border = primary;
-                            };
-                            scrollbars = {
-                                background = {
-                                    name = primary;
-                                    opacity = 0.2;
-                                };
-                            };
-                            settings_window = {
-                                border = outline;
+                            loading.bar = primary;
+                            loading.spinner = primary;
+                            scrollbars.background = {
+                                name = primary;
+                                opacity = 0.2;
                             };
                             text = {
                                 danger = warning;

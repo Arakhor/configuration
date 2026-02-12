@@ -197,7 +197,7 @@ def parse-theme [repo: path]: [
         string => { $value | resolve-theme-path-by-name $repo | try { open $in } }
         path => { try { open $value } }
     }
-    | try { parse-values $in.palette }
+    | try { parse-values ($in.palette? | default {}) } catch {|err| $err.msg }
 }
 
 def parse-scopes []: record -> record {

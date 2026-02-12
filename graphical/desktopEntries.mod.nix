@@ -1,5 +1,5 @@
 {
-    universal.maid-users =
+    graphical.maid-users =
         {
             config,
             lib,
@@ -212,7 +212,7 @@
             };
 
             config = lib.mkIf (config.file.xdg_desktop != { }) {
-                packages = map (lib.hiPrio (lib.attrsets.mapAttrsToList makeFile config.file.xdg_desktop));
+                packages = (map lib.hiPrio (lib.attrsets.mapAttrsToList makeFile config.file.xdg_desktop));
             };
         };
 }

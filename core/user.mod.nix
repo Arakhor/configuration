@@ -8,8 +8,9 @@
         }:
         let
             defaultUserHome = "/home";
-            home = "/home/arakhor";
             name = "arakhor";
+            home = "${defaultUserHome}/${name}";
+            hashedPassword = "$y$j9T$2RCRnlUsztuzTPbLjkPN50$LCDo/lkk9QQUVfNl0Xm7yM85t/uwAato.JlP3pCsLj4";
         in
         {
             imports = [
@@ -31,21 +32,17 @@
                 }
             ];
 
-            users =
-                let
-                    hashedPassword = "$y$j9T$2RCRnlUsztuzTPbLjkPN50$LCDo/lkk9QQUVfNl0Xm7yM85t/uwAato.JlP3pCsLj4";
-                in
-                {
-                    mutableUsers = false;
-                    users.root.hashedPassword = hashedPassword;
-                    users.${name} = {
-                        inherit hashedPassword;
-                        isNormalUser = true;
-                        description = "arakhor";
-                        extraGroups = [ "wheel" ];
-                        maid = { };
-                    };
+            users = {
+                mutableUsers = false;
+                users.root.hashedPassword = hashedPassword;
+                users.${name} = {
+                    inherit name home hashedPassword;
+                    isNormalUser = true;
+                    description = "Cyryl Smoleński";
+                    extraGroups = [ "wheel" ];
+                    maid.imports = config.maid-users;
                 };
+            };
 
             systemd.tmpfiles.rules = [
                 "d ${home} 0700 ${name} ${config.users.users.${name}.group} - -"
@@ -60,19 +57,12 @@
                     ])
                     [
                         ".config"
+                        ".cache"
                         ".local"
                         ".local/share"
-                        ".cache"
+                        ".local/state"
                         ".ssh"
                     ]
             ));
-
-            maid.sharedModules = [
-                {
-
-                    _module.args.nixosConfig = config;
-                    imports = config.maid-users;
-                }
-            ];
         };
 }

@@ -2,70 +2,75 @@
     universal =
         {
             config,
-            lib,
             pkgs,
             ...
         }:
-        lib.mkMerge [
-            # Backend
-            {
-                networking.networkmanager.enable = true;
-                users.users.arakhor.extraGroups = [ "networkmanager" ];
-                systemd.services.NetworkManager-wait-online.enable = false;
-            }
-            # DNS
-            {
-                services.resolved.enable = true;
-                networking.networkmanager.dns = "systemd-resolved";
-                systemd.services.systemd-resolved.stopIfChanged = false;
-                networking.nameservers = [
-                    "1.1.1.1"
-                    "1.0.0.1"
-                    "2606:4700:4700::1111"
-                    "2606:4700:4700::1001"
-                ];
-            }
-            # mDNS
-            {
-                services.avahi = {
+        {
+            networking = {
+                useNetworkd = true;
+                useDHCP = false;
+                wireless.iwd = {
                     enable = true;
-                    publish = {
-                        enable = true;
-                        addresses = true;
-                    };
+                    settings.General.EnableNetworkConfiguration = false;
+                };
+                firewall.enable = true;
+                nftables.enable = true;
+            };
+
+            services = {
+                resolved.enable = true;
+                avahi = {
+                    enable = true;
                     nssmdns4 = true;
-                    nssmdns6 = true;
+                    openFirewall = true;
                 };
-            }
-            # DHCP
-            {
-                networking.useDHCP = false;
-                networking.dhcpcd.enable = false;
-            }
-            # Firewall
-            {
-                networking.firewall.enable = true;
-                networking.firewall.allowPing = true;
-                networking.firewall.logRefusedConnections = false;
-                networking.nftables.enable = true;
-            }
-            # WiFi
-            {
-                networking.networkmanager.wifi = {
-                    # backend = "iwd";
-                    powersave = true;
+            };
+
+            systemd.network = {
+                enable = true;
+                wait-online.enable = false;
+                networks = {
+                    "10-wifi" = {
+                        matchConfig.Name = "wl*";
+                        networkConfig = {
+                            DHCP = "yes";
+                            IPv6PrivacyExtensions = "yes";
+                        };
+                    };
+
+                    "20-wired" = {
+                        matchConfig.Name = "en*";
+                        networkConfig = {
+                            DHCP = "yes";
+                            IPv6PrivacyExtensions = "yes";
+                        };
+                    };
                 };
+            };
 
-                boot.extraModprobeConfig = ''
-                    options cfg80211 ieee80211_regdom="${config.locale.regulatory-domain}"
-                '';
+            boot.extraModprobeConfig = ''
+                options cfg80211 ieee80211_regdom="${config.locale.regulatory-domain}"
+            '';
 
-                preserveSystem.directories = [
-                    {
-                        directory = "/etc/NetworkManager/system-connections";
-                        mode = "0700";
-                    }
-                ];
-            }
-        ];
+            maid-users.packages = [ pkgs.impala ];
+            maid-users.file.xdg_desktop.impala = {
+                name = "Impala";
+                genericName = "Wifi Manager";
+                exec = "xdg-terminal-exec --title=impala --app-id=impala impala";
+                terminal = false;
+                type = "Application";
+                icon = "nm-device-wireless";
+                categories = [ "System" ];
+            };
+
+            systemd.services.systemd-networkd.stopIfChanged = false;
+            systemd.services.systemd-resolved.stopIfChanged = false;
+
+            preserveSystem.directories = [
+                {
+                    directory = "/var/lib/iwd";
+                    mode = "0700";
+                }
+            ];
+        };
 }

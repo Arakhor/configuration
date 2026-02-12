@@ -7,7 +7,6 @@
         {
             lib,
             config,
-            pkgs,
             ...
         }:
         {
@@ -60,9 +59,6 @@
             hardware.steam-hardware.enable = true;
             hardware.logitech.wireless.enable = true;
             hardware.logitech.wireless.enableGraphical = true;
-            services.hardware.openrgb.enable = true;
-            services.hardware.openrgb.package = pkgs.openrgb-with-all-plugins;
-            # services.ddccontrol.enable = true;
 
             # Bluetooth configuration
             # services.blueman.enable = true;

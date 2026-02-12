@@ -76,6 +76,36 @@
                 unShaderBackgroundProcessingThreads ${toString (builtins.head config.hardware.facter.report.hardware.cpu).siblings}
             '';
 
+            programs.niri.settings.window-rules = [
+                {
+                    matches = [
+                        { app-id = "^steam_app_.*$"; }
+                    ];
+                    default-column-width.proportion = 1.0;
+                    open-fullscreen = true;
+                    variable-refresh-rate = true;
+                }
+
+                {
+                    matches = [
+                        {
+                            app-id = "steam";
+                            title = "Friends List";
+                        }
+                    ];
+                    open-focused = false;
+                    open-floating = true;
+                    default-column-width.fixed = 300;
+                    default-window-height.fixed = 600;
+                    default-floating-position = {
+                        x = 32;
+                        y = 32;
+                        relative-to = "bottom-right";
+                    };
+                }
+
+            ];
+
             preserveHome.directories = [
                 ".steam"
                 ".local/share/Steam"

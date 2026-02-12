@@ -18,9 +18,6 @@
 
             services.xserver.excludePackages = [ pkgs.xterm ];
 
-            # Enables wayland for all apps that support it
-            environment.sessionVariables.NIXOS_OZONE_WL = 1;
-
             # Some apps like vscode need the keyring for saving credentials.
             # WARN: May need to manually create a "login" keyring for this to work
             # correctly. Seahorse is an easy way to do this. To enable automatic

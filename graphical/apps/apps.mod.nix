@@ -3,6 +3,11 @@
     graphical =
         { pkgs, ... }:
         {
+            programs.appimage = {
+                enable = true;
+                binfmt = true;
+            };
+
             environment.systemPackages = with pkgs; [
                 # keep-sorted start
                 amberol
@@ -25,7 +30,6 @@
                 nautilus
                 obsidian
                 pairdrop
-                playerctl
                 rnote
                 seahorse
                 slurp

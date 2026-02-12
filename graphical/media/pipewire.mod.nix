@@ -4,6 +4,7 @@
         {
             environment.systemPackages = [
                 pkgs.pwvucontrol
+                pkgs.pulseaudio # for pactl
             ];
 
             security.rtkit.enable = true;

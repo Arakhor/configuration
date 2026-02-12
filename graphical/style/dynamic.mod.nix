@@ -43,8 +43,8 @@
                         }
 
                         let scheme = match ($props.chroma | into int) {
-                            $p if $p > 75 => { 'scheme-rainbow' }
-                            $p if $p < 25 => { 'scheme-neutral' }
+                            $p if $p > 40 => { 'scheme-rainbow' }
+                            $p if $p < 30 => { 'scheme-neutral' }
                             _ => { 'scheme-tonal-spot' }
                         }
 
@@ -57,7 +57,13 @@
                             --type $scheme
                             --source-color-index 0
                             --base16-backend 'wal'
+                            --json hex
                         )
+                        | from json
+                        | upsert props $props
+                        | upsert scheme $scheme
+                        | to json
+                        | save ($env.out)/metadata.json
                         rm ($env.out)/config.toml
                     '';
 
@@ -77,23 +83,6 @@
                 enable = lib.mkEnableOption "Matugen declarative theming" // {
                     default = cfg.templates != { };
                 };
-
-                # scheme = lib.mkOption {
-                #     description = "Color scheme type for dynamic theming with matugen";
-                #     type = lib.types.enum [
-                #         "content"
-                #         "expressive"
-                #         "fidelity"
-                #         "fruit-salad"
-                #         "monochrome"
-                #         "neutral"
-                #         "rainbow"
-                #         "tonal-spot"
-                #         "vibrant"
-                #     ];
-                #     default = "tonal-spot";
-                #     apply = v: "scheme-" + v;
-                # };
 
                 templates = lib.mkOption {
                     type =
@@ -143,13 +132,21 @@
                     readOnly = true;
                     default =
                         let
-                            themeEntries = map (wall: {
-                                name = lib.strings.unsafeDiscardStringContext (baseNameOf wall);
-                                path = buildTheme wall;
-                            }) wallCfg.randomise.wallpapers;
+                            themeEntries = [
+                                {
+                                    name = "default";
+                                    path = buildTheme wallCfg.default;
+                                }
+                            ]
+                            ++ lib.optionals wallCfg.randomise.enable (
+                                map (wall: {
+                                    name = lib.strings.unsafeDiscardStringContext (baseNameOf wall);
+                                    path = buildTheme wall;
+                                }) wallCfg.randomise.wallpapers
+                            );
                         in
                         pkgs.linkFarm "dynamic-themes-bundle" themeEntries;
-                    description = "Generated theme files from random wallpaper pool.";
+                    description = "Theme files generated from the wallpaper pool.";
                 };
             };
 
@@ -161,11 +158,6 @@
                     }
                 );
 
-                environment.systemPackages = [
-                    pkgs.matugen
-                    pkgs.image-hct
-                ]; # NOTE: testing purposes only
-
                 # Templates point to paths relative to home directory
                 maid-users.file.home =
                     let
@@ -174,6 +166,8 @@
                     lib.genAttrs collected (path: {
                         source = "{{xdg_cache_home}}/theme/${path}";
                     });
+
+                maid-users.file.xdg_state."themes".source = cfg.themeBundle;
 
                 maid-users.file.xdg_cache."theme" = lib.mkIf (!wallCfg.randomise.enable) {
                     source = buildTheme wallCfg.default;
@@ -243,11 +237,6 @@
                     (lib.genAttrs generated.colors (name: "{{colors.${name}.${scheme}.${format}}}"))
                     // (lib.genAttrs generated.base16 (name: "{{base16.${name}.${scheme}.${format}}}"))
                     // (lib.genAttrs generated.other (name: "{{${name}}}"));
-
-                # Preserve active theme
-                # preserveHome = {
-                #     directories = [ ".active-theme" ];
-                # };
             };
         };
 }

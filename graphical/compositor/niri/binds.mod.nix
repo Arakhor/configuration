@@ -33,6 +33,20 @@
                                 fi
                             ''
                         );
+
+                    onEachMonitor =
+                        command:
+                        spawn-sh (
+                            config.programs.niri.settings.outputs
+                            |> builtins.attrNames
+                            |> builtins.length
+                            |> builtins.genList (_: [
+                                "niri msg action focus-monitor-next"
+                                "niri msg action ${command}"
+                            ])
+                            |> builtins.concatLists
+                            |> lib.concatStringsSep ";"
+                        );
                 in
                 lib.attrsets.mergeAttrsList [
 
@@ -42,8 +56,8 @@
                         "Mod+O".action = toggle-overview;
                         "Mod+Q".action = close-window;
 
-                        "Mod+G".action = switch-focus-between-floating-and-tiling;
-                        "Mod+Ctrl+G".action = toggle-window-floating;
+                        "Mod+Tab".action = switch-focus-between-floating-and-tiling;
+                        "Mod+W".action = toggle-window-floating;
 
                         # "Mod+Comma".action = consume-window-into-column;
                         # "Mod+Period".action = expel-window-from-column;
@@ -57,15 +71,25 @@
                         "Mod+Shift+Escape".action = toggle-keyboard-shortcuts-inhibit;
                         "Mod+Shift+Ctrl+T".action = toggle-debug-tint;
 
-                        "Mod+K".action = focus-window-or-monitor-up;
-                        "Mod+J".action = focus-window-or-monitor-down;
+                        "Mod+K".action = focus-window-up;
+                        "Mod+J".action = focus-window-down;
                         "Mod+H".action = focus-column-left;
                         "Mod+L".action = focus-column-right;
 
                         "Mod+Ctrl+H".action = move-column-left;
                         "Mod+Ctrl+L".action = move-column-right;
-                        "Mod+Ctrl+K".action = move-column-to-monitor-up;
-                        "Mod+Ctrl+J".action = move-column-to-monitor-down;
+                        "Mod+Ctrl+K".action = move-window-up;
+                        "Mod+Ctrl+J".action = move-window-down;
+
+                        "Mod+Shift+H".action = focus-monitor-left;
+                        "Mod+Shift+L".action = focus-monitor-right;
+                        "Mod+Shift+K".action = focus-monitor-up;
+                        "Mod+Shift+J".action = focus-monitor-down;
+
+                        "Mod+Ctrl+Shift+H".action = move-column-to-monitor-left;
+                        "Mod+Ctrl+Shift+L".action = move-column-to-monitor-right;
+                        "Mod+Ctrl+Shift+K".action = move-window-to-monitor-up;
+                        "Mod+Ctrl+Shift+J".action = move-window-to-monitor-down;
 
                         "Mod+BracketLeft".action = focus-column-first;
                         "Mod+BracketRight".action = focus-column-last;

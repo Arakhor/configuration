@@ -1,8 +1,4 @@
-{
-    niri,
-    niri-fork,
-    ...
-}:
+{ niri, ... }:
 {
     graphical =
         {
@@ -41,7 +37,6 @@
 
             nixpkgs.overlays = [
                 niri.overlays.niri
-                niri-fork.overlays.default
             ];
 
             environment.systemPackages = with pkgs; [
@@ -55,14 +50,14 @@
             ];
 
             programs = {
-                wshowkeys.enable = true;
-
                 uwsm = {
                     desktopNames = [ "niri" ];
                     waylandCompositors.niri = {
                         prettyName = "niri";
                         comment = "niri compositor managed by UWSM";
                         binPath = "/run/current-system/sw/bin/niri";
+                        # https://github.com/Vladimir-csp/uwsm/issues/191
+                        extraArgs = [ "--session" ];
                     };
                 };
 
@@ -165,35 +160,6 @@
                                     relative-to = "bottom-right";
                                 };
                             }
-
-                            # Gaming
-                            {
-                                matches = [
-                                    {
-                                        app-id = "steam";
-                                        title = "Friends List";
-                                    }
-                                ];
-                                open-focused = false;
-                                open-floating = true;
-                                default-column-width.fixed = 300;
-                                default-window-height.fixed = 600;
-                                default-floating-position = {
-                                    x = 32;
-                                    y = 32;
-                                    relative-to = "bottom-right";
-                                };
-                            }
-
-                            {
-                                matches = [
-                                    { app-id = "^.gamescope-wrapped$"; }
-                                    { app-id = "^steam_app_.*$"; }
-                                ];
-                                default-column-width.proportion = 1.0;
-                                open-fullscreen = true;
-                                variable-refresh-rate = true;
-                            }
                         ];
                     };
                 };
@@ -203,24 +169,16 @@
     xps.programs.niri.settings.outputs."eDP-1".scale = 2.5;
 
     zeph = {
-        maid-users.file.xdg_config."uwsm/env-niri".text = ''
-            export LIBVA_DRIVER_NAME=nvidia
-            export GBM_BACKEND=nvidia-drm
-            export __GLX_VENDOR_LIBRARY_NAME=nvidia
-            export __GL_GSYNC_ALLOWED=0
-            export __GL_VRR_ALLOWED=0
-        '';
-
         programs.niri.settings = {
             debug = {
                 # wait-for-frame-completion-before-queueing = true;
-                render-drm-device = "/dev/dri/dgpu"; # NOTE: requires udev rules setup in core/asus
+                render-drm-device = "/dev/dri/dgpu-render"; # NOTE: requires udev rules setup in core/asus
             };
 
             outputs =
                 let
                     internal = {
-                        variable-refresh-rate = true;
+                        variable-refresh-rate = "on-demand";
                         focus-at-startup = true;
                         scale = 1.5;
                         mode.width = 2560;

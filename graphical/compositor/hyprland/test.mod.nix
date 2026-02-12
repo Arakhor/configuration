@@ -38,16 +38,14 @@
         {
             imports = [ hyprland.nixosModules.default ];
 
-            maid-users.file.xdg_config."uwsm/env-hyprland".text = ''
-                export LIBVA_DRIVER_NAME=nvidia
-                export GBM_BACKEND=nvidia-drm
-                export __GLX_VENDOR_LIBRARY_NAME=nvidia
-                export __GL_GSYNC_ALLOWED=0
-                export __GL_VRR_ALLOWED=0
-            '';
-
             programs = {
-                uwsm.desktopNames = [ "Hyprland" ];
+                uwsm = {
+                    desktopNames = [ "Hyprland" ];
+                    sessionVariables.hyprland = {
+                        HYPRCURSOR_SIZE = config.style.cursor.size;
+                    };
+                };
+
                 hyprland = {
                     enable = true;
                     withUWSM = true;
@@ -108,11 +106,6 @@
                             "$mod, T, exec, app2unit -t service com.mitchellh.ghostty.desktop:new-window"
                             # logout menu
                             "$mod, Escape, exec, ${toggle "wlogout"} -p layer-shell"
-                            # lock screen
-                            # "$mod, L, exec, loginctl lock-session"
-                            # lock screen, to be used with the special key Fn+F10 on my keyboard
-                            # "$mod, I, exec, loginctl lock-session"
-                            # select area to perform OCR on
                             "$mod, O, exec, ${runOnce "wl-ocr"}"
                             ", XF86Favorites, exec, ${runOnce "wl-ocr"}"
                             # open calculator
@@ -189,75 +182,91 @@
                             "$mod ALT, mouse:272, resizewindow"
                         ];
                         bindr = [
-                            # launcher
-
                         ];
+
                         decoration = {
                             blur = {
-                                brightness = 1.0;
-                                contrast = 1.0;
                                 enabled = true;
-                                noise = 0.01;
-                                passes = 4;
-                                popups = true;
-                                popups_ignorealpha = 0.2;
-                                size = 7;
-                                vibrancy = 0.2;
-                                vibrancy_darkness = 0.5;
+                                size = 2;
+                                passes = 3;
+                                xray = false;
+                                special = true;
                             };
-                            rounding = 10;
-                            rounding_power = 2.5;
-                            shadow = {
-                                color = "rgba(00000055)";
-                                enabled = true;
-                                ignore_window = true;
-                                offset = "0 15";
-                                range = 100;
-                                render_power = 2;
-                                scale = 0.97;
-                            };
+                            rounding = config.style.cornerRadius - 2;
+                            rounding_power = 4;
+                            shadow.enabled = false;
                         };
+
                         dwindle = {
                             preserve_split = true;
                             pseudotile = true;
                         };
-                        env = [
-                            "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
-                            # See https://github.com/hyprwm/contrib/issues/142
-                            "GRIMBLAST_NO_CURSOR,0"
-                        ];
+
                         general = {
+                            layout = "scrolling";
                             allow_tearing = true;
-                            border_size = 1;
+                            border_size = config.style.borderWidth;
+                            gaps_in = config.style.gapSize / 2;
+                            gaps_out = config.style.gapSize;
+                            resize_on_border = true;
                             "col.active_border" = "rgba(88888888)";
                             "col.inactive_border" = "rgba(00000088)";
-                            gaps_in = 4;
-                            gaps_out = 8;
-                            resize_on_border = true;
-                            layout = "scrolling";
                         };
+
                         gesture = [
                             "3, horizontal, workspace"
                             "4, left, dispatcher, movewindow, mon:-1"
                             "4, right, dispatcher, movewindow, mon:+1"
                             "4, pinch, fullscreen"
                         ];
+
                         gestures = {
                             workspace_swipe_forever = true;
                         };
+
                         input = {
-                            accel_profile = "flat";
                             follow_mouse = 1;
-                            kb_layout = "pl";
+                            mouse_refocus = true;
+                            accel_profile = "flat";
+                            sensitivity = 0;
+
+                            kb_layout = config.locale.keyboard-layout;
+                            repeat_delay = 200;
+                            repeat_rate = 30;
+
                             tablet = {
                                 output = "current";
+                                transform = 1;
+                            };
+
+                            touchpad = {
+                                natural_scroll = true;
+                                scroll_factor = "0.2";
+                                clickfinger_behavior = true;
+                                drag_lock = 0;
                             };
                         };
+
                         misc = {
                             animate_mouse_windowdragging = false;
                             force_default_wallpaper = 0;
                             vrr = 1;
+                            disable_autoreload = true;
+                            disable_hyprland_logo = true;
+                            disable_watchdog_warning = true;
+                            disable_splash_rendering = true;
+                            focus_on_activate = false;
+                            mouse_move_enables_dpms = true;
+                            # To enable using keybinds when screen has been manually turned off
+                            # off. Locker script enables this option.
+                            key_press_enables_dpms = false;
+                            background_color = "0x000000";
+                            on_focus_under_fullscreen = 2;
+                            enable_swallow = false;
+                            # Otherwise it sometimes appears briefly during shutdown
+                            lockdead_screen_delay = 10000;
                         };
+
                         plugin = {
                             hyprscrolling = {
                                 column_width = 0.75;

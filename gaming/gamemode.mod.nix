@@ -94,7 +94,7 @@
                                                 scxctl switch -m ${tern "gaming" "lowlatency"}
                                                 notify-send -u low 'GameMode' ${tern "'Performance mode enabled'" "'Balanced mode restored'"}
                                             } catch { |err|
-                                                notify-send -u critical 'GameMode' $"Failed to run hook: ($err)"
+                                                notify-send -u critical 'GameMode' $"Failed to run hook: ($err.rendered)"
                                                 # Return error code so GameMode knows the hook failed
                                                 return 1
                                             }

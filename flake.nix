@@ -34,9 +34,6 @@
 
         niri.url = "github:sodiboo/niri-flake/very-refactor";
 
-        niri-fork.url = "github:Naxdy/niri";
-        niri-fork.inputs.nixpkgs.follows = "nixpkgs";
-
         niri-scratchpad.url = "github:argosnothing/niri-scratchpad";
         niri-scratchpad.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -84,11 +81,11 @@
         nixd.url = "github:nix-community/nixd";
         nixd.inputs.nixpkgs.follows = "nixpkgs";
 
-        # dms.url = "github:AvengeMedia/DankMaterialShell";
-        # dms.inputs.nixpkgs.follows = "nixpkgs";
-
-        qml-niri.url = "github:imiric/qml-niri";
+        quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+        quickshell.inputs.nixpkgs.follows = "nixpkgs";
+        qml-niri.url = "github:imiric/qml-niri/main";
         qml-niri.inputs.nixpkgs.follows = "nixpkgs";
+        qml-niri.inputs.quickshell.follows = "quickshell";
 
         hyprland.url = "github:hyprwm/hyprland";
         hyprland-plugins.url = "github:hyprwm/hyprland-plugins";

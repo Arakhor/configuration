@@ -34,6 +34,7 @@
                     target = ".config/alacritty/themes/matugen.toml";
                     source = tomlFormat.generate "matugen-alacritty.toml" {
                         colors = {
+                            transparent_background_colors = true;
                             normal = {
                                 black = surface_container;
                                 red = error;
@@ -75,7 +76,7 @@
                     tomlFormat = pkgs.formats.toml { };
 
                     alacrittyConfig = {
-                        general.import = [ ("/home/arakhor/" + config.style.dynamic.templates.alacritty.target) ];
+                        general.import = [ ("~/" + config.style.dynamic.templates.alacritty.target) ];
 
                         # general.import = [ "${pkgs.alacritty-theme}/share/alacritty-theme/tokyo_night_enhanced.toml" ];
 

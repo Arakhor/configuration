@@ -18,49 +18,69 @@ let
             cfg = config.programs.uwsm;
         in
         {
-            options = {
-                programs.uwsm = {
-                    desktopNames = mkOption {
-                        type = with types; listOf str;
-                        internal = true;
-                        default = [ ];
-                        description = ''
-                            List of desktop names to create drop-in overrides for. Should be the
-                            exact case-sensitive name used in the .desktop file.
-                        '';
-                    };
+            options.programs.uwsm = {
+                desktopNames = mkOption {
+                    type = with types; listOf str;
+                    internal = true;
+                    default = [ ];
+                    description = ''
+                        List of desktop names to create drop-in overrides for. Should be the
+                        exact case-sensitive name used in the .desktop file.
+                    '';
+                };
 
-                    appUnitOverrides = mkOption {
-                        type = with types; attrsOf lines;
-                        default = { };
-                        # apply = v: (optionalAttrs home-manager.enable homeUwsm.appUnitOverrides) // v;
-                        description = ''
-                            Attribute set of unit overrides. Attribute name should be the unit
-                            name without the app-''${desktop} prefix. Attribute value should be
-                            the multiline unit string.
-                        '';
-                        example = {
-                            "discord-.scope" = ''
-                                [Scope]
-                                KillMode=mixed
-                            '';
-
-                            "steam@.service" = ''
-                                [Service]
-                                ...
-                            '';
+                sessionVariables = mkOption {
+                    type =
+                        with types;
+                        attrsOf (
+                            lazyAttrsOf (oneOf [
+                                str
+                                int
+                                path
+                            ])
+                        );
+                    default = { };
+                    example = {
+                        hyprland = {
+                            HYPRCURSOR_SIZE = 24;
+                        };
+                        common = {
+                            NIXOS_OZONE_WL = 1;
                         };
                     };
 
-                    fumon.enable = mkOption {
-                        type = types.bool;
-                        default = true;
-                        description = ''
-                            Whether to enable Fumon service monitor. Warning: can cause CPU
-                            spikes when launching units so probably best to disable on low
-                            powered devices and laptops.
+                };
+
+                appUnitOverrides = mkOption {
+                    type = with types; attrsOf lines;
+                    default = { };
+                    # apply = v: (optionalAttrs home-manager.enable homeUwsm.appUnitOverrides) // v;
+                    description = ''
+                        Attribute set of unit overrides. Attribute name should be the unit
+                        name without the app-''${desktop} prefix. Attribute value should be
+                        the multiline unit string.
+                    '';
+                    example = {
+                        "discord-.scope" = ''
+                            [Scope]
+                            KillMode=mixed
+                        '';
+
+                        "steam@.service" = ''
+                            [Service]
+                            ...
                         '';
                     };
+                };
+
+                fumon.enable = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = ''
+                        Whether to enable Fumon service monitor. Warning: can cause CPU
+                        spikes when launching units so probably best to disable on low
+                        powered devices and laptops.
+                    '';
                 };
             };
 
@@ -86,6 +106,13 @@ let
                         (getExe' config.programs.uwsm.package "fumon")
                     ];
                 };
+
+                maid-users.file.xdg_config = lib.concatMapAttrs (
+                    desktop: vars:
+                    lib.optionalAttrs (vars != { }) {
+                        "uwsm/env${lib.optionalString (desktop != "common") "-${desktop}"}".text = lib.shell.exportAll vars;
+                    }
+                ) cfg.sessionVariables;
 
                 systemd.user.units = concatMapAttrs (
                     unitName: text:

@@ -1,7 +1,6 @@
 {
     base =
         {
-            config,
             lib,
             pkgs,
             ...
@@ -26,7 +25,6 @@
                 "nowatchdog"
                 "nmi_watchdog=0"
             ];
-
             systemd.settings.Manager = {
                 RebootWatchdogSec = lib.mkForce null;
                 RuntimeWatchdogSec = lib.mkForce null;
@@ -35,43 +33,50 @@
 
             # Include some utilities that are useful for installing or repairing
             # the system.
-            environment.systemPackages = [
-                pkgs.uutils-coreutils-noprefix
-                pkgs.uutils-procps
-                pkgs.uutils-util-linux
-                pkgs.uutils-findutils
+            environment.systemPackages = with pkgs; [
+                uutils-coreutils-noprefix
+                uutils-procps
+                uutils-findutils
+                uutils-hostname
+                uutils-login
+                uutils-tar
+                uutils-acl
+                uutils-sed
+                uutils-util-linux
 
-                pkgs.w3m-nographics # needed for the manual anyway
-                pkgs.testdisk # useful for repairing boot problems
-                pkgs.ms-sys # for writing Microsoft boot sectors / MBRs
-                pkgs.efibootmgr
-                pkgs.efivar
-                pkgs.parted
-                pkgs.gptfdisk
-                pkgs.ddrescue
-                pkgs.ccrypt
-                pkgs.cryptsetup # needed for dm-crypt volumes
+                toybox
+                w3m-nographics # needed for the manual anyway
+                testdisk # useful for repairing boot problems
+                ms-sys # for writing Microsoft boot sectors / MBRs
+                efibootmgr
+                efivar
+                parted
+                gptfdisk
+                ddrescue
+                ccrypt
+                cryptsetup # needed for dm-crypt volumes
 
                 # Some networking tools.
-                pkgs.fuse
-                pkgs.fuse3
-                pkgs.sshfs-fuse
-                pkgs.socat
-                pkgs.screen
-                pkgs.tcpdump
-                pkgs.wget
+                fuse
+                fuse3
+                sshfs-fuse
+                socat
+                screen
+                tcpdump
+                wget
 
                 # Hardware-related tools.
-                pkgs.sdparm
-                pkgs.hdparm
-                pkgs.smartmontools # for diagnosing hard disks
-                pkgs.pciutils
-                pkgs.usbutils
-                pkgs.nvme-cli
+                sdparm
+                hdparm
+                smartmontools # for diagnosing hard disks
+                pciutils
+                usbutils
+                nvme-cli
+                mesa-demos
 
                 # Some compression/archiver tools.
-                pkgs.unzip
-                pkgs.zip
+                unzip
+                zip
             ];
         };
 }
